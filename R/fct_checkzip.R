@@ -16,6 +16,7 @@
 fct_checkzip <- function(.path){
 
   ## !!! FOR TESTING ONLY
+  # .path = "inst/extdata/OLAP_shiny_demo_broken.zip"
   # .path = "inst/extdata/OLAP_shiny_demo.zip"
   # !!!
 
@@ -25,21 +26,29 @@ fct_checkzip <- function(.path){
   )
 
   ## Get file names
-  zip_content <- zip::zip_list(.path)$filename |> sort()
+  zip_content <- zip::zip_list(.path)$filename |> sort() |> stringr::str_remove(".*/")
 
   ## Check is files names match the checklist
   zipcheck <- purrr::map(seq_along(checklist$item), function(x){
     if (checklist$item[x] %in% zip_content) TRUE else FALSE
   })
-
   names(zipcheck) <- paste0("has_", checklist$check)
+
+  zipmissing <- purrr::map_chr(seq_along(checklist$item), function(x){
+    if (!checklist$item[x] %in% zip_content) checklist$item[x] else "na"
+  }) |> stringr::str_subset("na", negate = TRUE)
+
+
 
   ## Check number of entity tables
   nb_entities <- stringr::str_subset(zip_content, pattern = "OLAP_.*\\.csv") |> length()
-  if (nb_entities > 0) zipcheck$has_entities <- TRUE else zipcheck$has_entities <- FALSE
+  if (nb_entities > 0) zipcheck$has_OLAPentities <- TRUE else zipcheck$has_OLAPentities <- FALSE
+  if (nb_entities== 0) zipmissing <- c(zipmissing, "OLAP_*.csv")
 
   ## Summary
   zipcheck$all_ok <- all(unlist(zipcheck))
+
+  zipcheck$missing <- zipmissing
 
   zipcheck
 

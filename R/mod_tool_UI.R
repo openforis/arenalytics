@@ -12,9 +12,9 @@ mod_tool_UI <- function(id, i18n){
   ## UI Elements ######
   ##
 
-  ## + Sidebar ======
+  ## \_ Sidebar ======
 
-  ## ++ Acc1: Load data ------
+  ## \___ Acc1: Load data ------
   ac1 <- accordion_panel(
     title = i18n$t("Load OpenForis OLAP ZIP file"),
     icon = bsicons::bs_icon("1-circle"),
@@ -52,53 +52,66 @@ mod_tool_UI <- function(id, i18n){
     ),
 
     ## MESSAGES
-    # div(
-    #   id = ns("msg_no_file"),
-    #   "No data uploaded.",
-    #   class = "text-warning",
-    #   style = "font-style: italic;"
-    # ),
-    # shinyjs::hidden(div(
-    #   id = ns("msg_file_ok"),
-    #   "Data structure OK.",
-    #   class = "text-success",
-    #   style = "font-style: italic;"
-    # )),
-    # shinyjs::hidden(div(
-    #   id = ns("msg_file_error"),
-    #   "Data uploaded with incorrect files.",
-    #   verbatimTextOutput(ns("file_error_detail")),
-    #   class = "text-danger",
-    #   style = "font-style: italic;"
-    # )),
-    #
-    # ## ACTION BUTTON
-    # div(
-    #   shinyjs::disabled(
-    #     actionButton(
-    #       inputId = ns("btn_load_data"),
-    #       label = "Run checks"
-    #     )
-    #   ),
-    #   style = "margin-top: 1rem;"
-    # )
+    div(
+      id = ns("msg_no_file"),
+      "No data uploaded.",
+      class = "text-warning",
+      style = "font-style: italic;"
+    ),
+    shinyjs::hidden(div(
+      id = ns("msg_file_ok"),
+      "Data structure OK.",
+      class = "text-success",
+      style = "font-style: italic;"
+    )),
+    shinyjs::hidden(div(
+      id = ns("msg_file_error"),
+      "Incorrect data uploaded.",
+      verbatimTextOutput(ns("file_error_detail")),
+      class = "text-danger",
+      style = "font-style: italic;"
+    )),
+
+    ## ACTION BUTTON
+    div(
+      shinyjs::disabled(
+        actionButton(
+          inputId = ns("btn_load_data"),
+          label = "Load data"
+        )
+      ),
+      style = "margin-top: 1rem;"
+    )
 
   ) ## END accordion_panel()
 
 
-  ## ++ Accordion 2 ---------------------------------------------------
+  ## \___ Acc2: Read data ======
   ac2 <-  accordion_panel(
-    title = i18n$t("Action 2"),
+    title = i18n$t("Data visualization"),
     icon = bsicons::bs_icon("2-circle"),
     value = ns("ac2"),
 
     ## Content
+    ## \_____ Initial text ------
+    div_data_init <- div(
+      id = ns("readdata_accordion_msg"),
+      bsicons::bs_icon("arrow-up"), " Start with uploading your data and run: '",
+      i18n$t("Load data"), "'.",
+      class = "text-warning",
+      style = "font-style: italic;"
+    ),
+
+    ## \___
+
+
+
 
   )
 
-  ## ++ Accordion 3 -------------------------------------------
+  ## \___ Acc3: Test crosstalk -------------------------------------------------
   ac3 <-  accordion_panel(
-    title = i18n$t("Action 3"),
+    title = i18n$t("Test crosstalk"),
     icon = bsicons::bs_icon("3-circle"),
     value = ns("ac3"),
 
@@ -118,25 +131,25 @@ mod_tool_UI <- function(id, i18n){
     ),
     div(
       actionButton(
-        inputId = ns("btn_panel2"),
-        label = "To Panel 2"
+        inputId = ns("btn_panel3"),
+        label = "To Test Panel"
       ),
       style = "margin-top: 1rem;"
     )
   )
 
-  ## + Main panel 1 ============================================================
+  ## \_ Panels ======
+  ## \___ Panel: data ======
   ## Data descriptors
 
 
-  ## + Main panel 2 ============================================================
+  ## \___ Panel: analysis ==========
   ## Statistical analysis
 
 
-  ## + Main panel 3 ============================================================
-  ## Misc
+  ## \___ Panel: test -----
 
-  ## ++ Value boxes ------------------------------------------------------------
+  ## \_____ Value boxes -----
   vb1 <- value_box(
     title = "Sepal Mean length",
     value = htmlOutput(ns("vb_seplen_mean")),
@@ -159,7 +172,7 @@ mod_tool_UI <- function(id, i18n){
   )
 
 
-  ## ++ cards ------------------------------------------------------------------
+  ## \_____ cards -----
   card1 <- card(
     full_screen = T,
     h5(i18n$t("Scatter 1")),
@@ -192,7 +205,7 @@ mod_tool_UI <- function(id, i18n){
     navset_card_tab(
       id = ns("tool_tabs"),
 
-      ## + Sidebar =============================================================
+      ## \_ Sidebar =======
 
       sidebar = sidebar(
         width = "300px",
@@ -206,7 +219,7 @@ mod_tool_UI <- function(id, i18n){
       ## Spacer to right align menu items
       nav_spacer(),
 
-      ## + Main panel 1 ========================================================
+      ## \_ Panel Data Layout ======
 
       nav_panel(
         title = i18n$t("Panel 1"),
@@ -215,7 +228,7 @@ mod_tool_UI <- function(id, i18n){
         ## CONTENT
       ),
 
-      ## + panel 2===========================================================
+      ## \_ Panel analysis layout =======
 
       nav_panel(
         title = i18n$t("Panel 2"),
@@ -224,10 +237,10 @@ mod_tool_UI <- function(id, i18n){
         ## CONTENT
       ),
 
-      ## + panel 3 ============================================
+      ## \_ Panel test layout============
 
       nav_panel(
-        title = i18n$t("Panel 3"),
+        title = i18n$t("Test crosstalk"),
         value = "tab3",
         icon = icon("magnifying-glass"),
         ## CONTENT

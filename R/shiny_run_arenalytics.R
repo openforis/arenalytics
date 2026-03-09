@@ -195,7 +195,8 @@ shiny_run_arenalytics <- function(...) {
     rv <- reactiveValues(
       inputs  = reactiveValues(),
       rv2     = reactiveValues(),
-      actions = reactiveValues()
+      actions = reactiveValues(),
+      test    = reactiveValues()
     )
 
     ## Save language value to show/hide divs with shinyjs
