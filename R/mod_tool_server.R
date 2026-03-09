@@ -13,24 +13,37 @@ mod_tool_server <- function(id, rv) {
     ## 1. Load data ######
     ##
 
-    observeEvent(input$load_zip, {
+    ## !!! FOR TESTING ONLY
+    # rv <- list()
+    # rv$inputs <- list()
+    # rv$inputs$path_zip <- system.file("extdata/OLAP_Shiny_demo.zip", package = "arenalytics")
+    # rv$inputs$check_zip <- fct_checkzip(.path = rv$inputs$path_zip)
+    ## !!!
 
-      rv$inputs$path_zip <- input$load_zip
-      rv$inputs$check_zip <- fct_checkzip(.path = input$load_zip)
 
-      if(rv$inputs$check_zip$all_ok) {
-        shinyjs::hide("msg_no_data")
-        shinyjs::show("msg_files_ok")
-        shinyjs::hide("msg_files_wrong")
-        shinyjs::enable("btn_run_checks")
-      } else {
-        shinyjs::hide("msg_no_data")
-        shinyjs::hide("msg_data_tabs_ok")
-        shinyjs::show("msg_data_tabs_wrong")
-        shinyjs::disable("btn_run_checks")
-      }
-
-    })
+    # observeEvent(input$load_zip, {
+    #
+    #   rv$inputs$path_zip <- input$load_zip
+    #   rv$inputs$check_zip <- fct_checkzip(.path = rv$inputs$path_zip)
+    #
+    #   if(rv$inputs$check_zip$all_ok) {
+    #     shinyjs::hide("msg_no_file")
+    #     shinyjs::show("msg_file_ok")
+    #     shinyjs::hide("msg_file_error")
+    #     shinyjs::enable("btn_load_data")
+    #   } else {
+    #     shinyjs::hide("msg_no_file")
+    #     shinyjs::hide("msg_file_ok")
+    #     shinyjs::show("msg_file_error")
+    #     shinyjs::disable("btn_load_data")
+    #   }
+    #
+    # })
+    #
+    # output$file_error_detail <- renderPrint({
+    #   req(rv$inputs$check_zip)
+    #   if(!rv$inputs$check_zip$all_ok) data.frame(res = unlist(rv$inputs$check_zip))
+    # })
 
     ## Sidebar part 2 ######
     observe({

@@ -9,24 +9,25 @@ mod_tool_UI <- function(id, i18n){
   ns <- NS(id)
 
   ##
-  ## UI Elements ###############################################################
+  ## UI Elements ######
   ##
 
-  ## + Sidebar =================================================================
+  ## + Sidebar ======
 
-  ## ++ Accordion 1 -------------------------------------------------
+  ## ++ Acc1: Load data ------
   ac1 <- accordion_panel(
-    title = i18n$t("Load OF Arena Data"),
+    title = i18n$t("Load OpenForis OLAP ZIP file"),
     icon = bsicons::bs_icon("1-circle"),
     value = ns("ac1"),
 
     ## Accordion content
+    ## Input ZIP file
     div(
       p(
         "The dashboard requires a ZIP file that is produced by running the processing
-        chain from your OF Arena survey in Rstudio (local or online). Once this file
-        is produced, upload here:"
+        chain from your OpenForis Arena survey in Rstudio (local or online)."
       ),
+      p("Once this file is produced, upload here:"),
       fileInput(
         inputId = ns("load_zip"),
         accept = ".zip",
@@ -34,22 +35,55 @@ mod_tool_UI <- function(id, i18n){
       ),
       ## TEST alternative shinyFiles
       ## !!! Package old and not maintained
-      br(),
-      p(
-        "The dashboard requires a ZIP file that is produced by running the processing
-        chain from your OF Arena survey in Rstudio (local or online). Once this file
-        is produced, extract the data and point to its location here, so that the app
-        can automatically find the data and structure files:"
-      ),
+      # br(),
+      # p(
+      #   "The dashboard requires a ZIP file that is produced by running the processing
+      #   chain from your OF Arena survey in Rstudio (local or online). Once this file
+      #   is produced, extract the data and point to its location here, so that the app
+      #   can automatically find the data and structure files:"
+      # ),
+      #
+      # shinyFiles::shinyDirButton(
+      #   id = ns('path_to_folder'),
+      #   label = 'Select a folder',
+      #   title = 'Please select a folder',
+      #   FALSE
+      # )
+    ),
 
-      shinyFiles::shinyDirButton(
-        id = ns('path_to_folder'),
-        label = 'Select a folder',
-        title = 'Please select a folder',
-        FALSE
-      )
-    )
-  )
+    ## MESSAGES
+    # div(
+    #   id = ns("msg_no_file"),
+    #   "No data uploaded.",
+    #   class = "text-warning",
+    #   style = "font-style: italic;"
+    # ),
+    # shinyjs::hidden(div(
+    #   id = ns("msg_file_ok"),
+    #   "Data structure OK.",
+    #   class = "text-success",
+    #   style = "font-style: italic;"
+    # )),
+    # shinyjs::hidden(div(
+    #   id = ns("msg_file_error"),
+    #   "Data uploaded with incorrect files.",
+    #   verbatimTextOutput(ns("file_error_detail")),
+    #   class = "text-danger",
+    #   style = "font-style: italic;"
+    # )),
+    #
+    # ## ACTION BUTTON
+    # div(
+    #   shinyjs::disabled(
+    #     actionButton(
+    #       inputId = ns("btn_load_data"),
+    #       label = "Run checks"
+    #     )
+    #   ),
+    #   style = "margin-top: 1rem;"
+    # )
+
+  ) ## END accordion_panel()
 
 
   ## ++ Accordion 2 ---------------------------------------------------
@@ -59,6 +93,17 @@ mod_tool_UI <- function(id, i18n){
     value = ns("ac2"),
 
     ## Content
+
+  )
+
+  ## ++ Accordion 3 -------------------------------------------
+  ac3 <-  accordion_panel(
+    title = i18n$t("Action 3"),
+    icon = bsicons::bs_icon("3-circle"),
+    value = ns("ac3"),
+
+    ## Content
+    h4("coming soon"),
     div(
       id = ns("msg_no_check"),
       p("Suspendisse suscipit accumsan sagittis. Aliquam ut scelerisque mauris."),
@@ -72,25 +117,24 @@ mod_tool_UI <- function(id, i18n){
       value = c(min(datasets::iris$Petal.Length), max(datasets::iris$Petal.Length))
     ),
     div(
-        actionButton(
-          inputId = ns("btn_panel2"),
-          label = "To Panel 2"
-        ),
+      actionButton(
+        inputId = ns("btn_panel2"),
+        label = "To Panel 2"
+      ),
       style = "margin-top: 1rem;"
     )
   )
 
-  ## ++ Accordion 3 -------------------------------------------
-  ac3 <-  accordion_panel(
-    title = i18n$t("Action 3"),
-    icon = bsicons::bs_icon("3-circle"),
-    value = ns("ac3"),
-
-    ## Content
-    h4("coming soon")
-  )
-
   ## + Main panel 1 ============================================================
+  ## Data descriptors
+
+
+  ## + Main panel 2 ============================================================
+  ## Statistical analysis
+
+
+  ## + Main panel 3 ============================================================
+  ## Misc
 
   ## ++ Value boxes ------------------------------------------------------------
   vb1 <- value_box(
@@ -136,7 +180,7 @@ mod_tool_UI <- function(id, i18n){
 
 
   ##
-  ## Layout UI elements with tagList() function ################################
+  ## UI Layout #################################################################
   ##
 
   tagList(
@@ -177,6 +221,16 @@ mod_tool_UI <- function(id, i18n){
         title = i18n$t("Panel 2"),
         value = "tab2",
         icon = icon("chart-simple"),
+        ## CONTENT
+      ),
+
+      ## + panel 3 ============================================
+
+      nav_panel(
+        title = i18n$t("Panel 3"),
+        value = "tab3",
+        icon = icon("magnifying-glass"),
+        ## CONTENT
         ## Value boxes
         div(
           id = ns("vb_section"),
@@ -192,14 +246,6 @@ mod_tool_UI <- function(id, i18n){
           layout_column_wrap(card1, card2, width = "300px"),
           card3
         )
-      ),
-
-      ## + panel 3 ============================================
-
-      nav_panel(
-        title = i18n$t("Panel 3"),
-        value = "tab3",
-        icon = icon("magnifying-glass"),
 
       )
 

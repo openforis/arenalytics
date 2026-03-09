@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_checkzip.R
 \name{fct_checkzip}
 \alias{fct_checkzip}
-\title{Check input ZIP file integrity}
+\title{Check OpenForis Arena OLAP ZIP file integrity}
 \usage{
 fct_checkzip(.path)
 }
@@ -17,8 +17,6 @@ fct_checkzip() checks if the ZIP files uploaded in the master ShinyApp has
 the core files required to run the analysis.
 }
 \examples{
-library(arenalytics)
-
 zipfile <- system.file("extdata/OLAP_shiny_demo.zip", package = "arenalytics")
 zip_check <- fct_checkzip(.path = zipfile)
 zip_check$all_ok

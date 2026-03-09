@@ -1,5 +1,19 @@
-
-
+#' Read OpenForis Arena OLAP zipfile data
+#'
+#' @description Processing chaina of OpenForis Arena surveys generate a ZIP file
+#'              containing field entity data at the minimum area unit (OLAP tables) and
+#'              survey descriptors. fct_readzip() is tailored to load this data.
+#'
+#' @param .path A path to the data ZIP file.
+#'
+#' @returns a list of entity level data frames and survey descriptors
+#'
+#' @examples
+#' zipfile <- system.file("extdata/OLAP_shiny_demo.zip", package = "arenalytics")
+#' zipdata <- fct_readzip(.path = zipfile)
+#' summary(zipdata$OLAP_tree$tree_biomass_ag)
+#'
+#' @export
 fct_readzip <- function(.path){
 
   ## !!! FOR TESTING ONLY
@@ -16,7 +30,7 @@ fct_readzip <- function(.path){
 
     ext <- stringr::str_remove(x, pattern = ".*\\.")
     if (ext == "csv") {
-      tt <- read.csv(unz(.path, x))
+      tt <- utils::read.csv(unz(.path, x))
     } else if (ext == "rds") {
       tt <- readRDS(gzcon(unz(.path, x)))
       #tt <- purrr::map(tt, dplyr::as_tibble)
@@ -43,7 +57,7 @@ fct_readzip <- function(.path){
   #
   #   ext <- stringr::str_remove(x, pattern = ".*\\.")
   #   if (ext == "csv") {
-  #     tt <- read.csv(x)
+  #     tt <- utils::read.csv(x)
   #   } else if (ext == "rds") {
   #     tt <- readRDS(x)
   #     #tt <- purrr::map(tt, dplyr::as_tibble)
