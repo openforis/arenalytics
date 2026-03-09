@@ -81,6 +81,14 @@ fct_readzip <- function(.path){
 
 }
 
-
-
+## TMP
+# tt <- out$SchemaSummary |> dplyr::as_tibble()
+# ls <- out$chain_summary
+# ls2 <- ls$analysis
+# tt2 <- ls$resultVariables |> dplyr::tibble()
+# names(ls)
+# out$chain_summary$surveyName
+# out$chain_summary$surveyLabel
+# out$chain_summary$baseUnit
+# out$chain_summary$analysis
 

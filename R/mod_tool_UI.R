@@ -76,8 +76,8 @@ mod_tool_UI <- function(id, i18n){
     div(
       shinyjs::disabled(
         actionButton(
-          inputId = ns("btn_load_data"),
-          label = "Load data"
+          inputId = ns("btn_read_data"),
+          label = i18n$t("Read data")
         )
       ),
       style = "margin-top: 1rem;"
@@ -97,7 +97,7 @@ mod_tool_UI <- function(id, i18n){
     div_data_init <- div(
       id = ns("readdata_accordion_msg"),
       bsicons::bs_icon("arrow-up"), " Start with uploading your data and run: '",
-      i18n$t("Load data"), "'.",
+      i18n$t("Read data"), "'.",
       class = "text-warning",
       style = "font-style: italic;"
     ),
@@ -140,8 +140,43 @@ mod_tool_UI <- function(id, i18n){
 
   ## \_ Panels ======
   ## \___ Panel: data ======
-  ## Data descriptors
+  ## Data message
+  datapanel_msg <- div(
+    id = ns("readdata_panel_msg"),
+    bsicons::bs_icon("arrow-left"), " Start with uploading your OLAP zipfile in the sidebar.",
+    class = "text-warning",
+    style = "font-style: italic;"
+  )
 
+  ## Data progress
+  datapanel_progress <- shinyjs::hidden(div(
+    id = ns("readdata_progress"),
+    shinyWidgets::progressBar(
+      id = ns("prog_dataload"),
+      value = 0,
+      title = "Reading data",
+      display_pct = TRUE
+    ),
+    br(),
+    verbatimTextOutput(outputId = ns("prog_console"))
+  ))
+
+  ## Data insight btn
+  datapanel_show_insight <- shinyjs::hidden(div(
+    id = ns("readdata_panel_btn_show"),
+    actionButton(inputId = ns("btn_show_data"), label = "Show data insights")
+  ))
+
+  ## Data insights
+  datapanel_insight_title <- tags$h3(
+    textOutput(ns("readdata_insight_title"))
+  )
+
+
+  datapanel_insight <- shinyjs::hidden(div(
+    id = ns("readdata_panel_insights"),
+    datapanel_insight_title
+  ))
 
   ## \___ Panel: analysis ==========
   ## Statistical analysis
@@ -220,16 +255,19 @@ mod_tool_UI <- function(id, i18n){
       nav_spacer(),
 
       ## \_ Panel Data Layout ======
-
       nav_panel(
         title = i18n$t("Panel 1"),
         value = "tab1",
         icon = icon("circle-check"),
         ## CONTENT
+        datapanel_msg,
+        datapanel_progress,
+        datapanel_show_insight,
+        datapanel_insight
+
       ),
 
       ## \_ Panel analysis layout =======
-
       nav_panel(
         title = i18n$t("Panel 2"),
         value = "tab2",

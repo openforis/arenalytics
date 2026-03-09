@@ -38,8 +38,6 @@ fct_checkzip <- function(.path){
     if (!checklist$item[x] %in% zip_content) checklist$item[x] else "na"
   }) |> stringr::str_subset("na", negate = TRUE)
 
-
-
   ## Check number of entity tables
   nb_entities <- stringr::str_subset(zip_content, pattern = "OLAP_.*\\.csv") |> length()
   if (nb_entities > 0) zipcheck$has_OLAPentities <- TRUE else zipcheck$has_OLAPentities <- FALSE

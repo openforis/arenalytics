@@ -29,12 +29,12 @@ mod_tool_server <- function(id, rv) {
         shinyjs::hide("msg_no_file")
         shinyjs::show("msg_file_ok")
         shinyjs::hide("msg_file_error")
-        shinyjs::enable("btn_load_data")
+        shinyjs::enable("btn_read_data")
       } else {
         shinyjs::hide("msg_no_file")
         shinyjs::hide("msg_file_ok")
         shinyjs::show("msg_file_error")
-        shinyjs::disable("btn_load_data")
+        shinyjs::disable("btn_read_data")
       }
 
     })
@@ -46,13 +46,18 @@ mod_tool_server <- function(id, rv) {
     })
 
     ## Acc2: dataviz ######
-    observeEvent(input$read_data, {
+    observeEvent(input$btn_read_data, {
 
+      ## \_ Hide/Show panels ====
       shinyjs::hide("readdata_accordion_msg")
+      shinyjs::hide("readdata_panel_msg")
       shinyjs::show("readdata_panel_progress")
-      shinyjs::
+      shinyjs::show("readdata_panel_btn_show")
+      #shinyjs::hide("readdata_panel_insights")
+      shinyjs::show("readdata_panel_insights")
 
-
+      ## \_ Read data =====
+      rv$inputs$data <- fct_readzip(.path = rv$inputs$path_zip)
 
     })
 
@@ -77,7 +82,20 @@ mod_tool_server <- function(id, rv) {
 
     ## Main panels ######
 
-    ## Virtual boxes ======
+    ## \_ Data Panel ====
+
+    ## \___ Title ------
+    output$readdata_insight_title <- renderText({
+      req(rv$inputs$data)
+      paste(
+        rv$inputs$data$chain_summary$surveyName,
+        rv$inputs$data$chain_summary$surveyLabel,
+        sep = " - "
+      )
+    })
+
+    ## \_ Test crosstalk ====
+    ## \___ Virtual boxes ----
 
     output$vb_seplen_mean <- renderUI({
       fct_mean(.df = rv$test$user_iris, .colnum = .data$Sepal.Length, .rounding = 1)
@@ -91,7 +109,7 @@ mod_tool_server <- function(id, rv) {
       length(unique(rv$test$user_iris$Species))
     })
 
-    ## Panel cards ======
+    ## \___ Panel cards ------
     output$scatter1 <- d3scatter::renderD3scatter({
       d3scatter::d3scatter(rv$test$shared_iris, ~Petal.Length, ~Petal.Width, ~Species, width = "100%")
     })
