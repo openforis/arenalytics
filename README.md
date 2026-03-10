@@ -4,4 +4,15 @@
 
 # arenalytics
 
-Analytics and visualisations for OpenForis Arena data
+Analytics and visualizations for OpenForis Arena data
+
+Run at: https://openforis-shiny.shinyapps.io/arenalytics/
+
+or install and run locally in a Rstudio instance with:
+
+```         
+if (!require(remotes)) install.packages("remotes")
+if (!require(arenalytics)) remotes::install_github("openforis/arenalytics")
+
+arenalytics::shiny_run_arenalytics()
+```
