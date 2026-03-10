@@ -100,7 +100,7 @@ shiny_run_arenalytics <- function(...) {
     class = "container footer text-center",
     tags$small(
       "(c) 2026 Arena Analytics - Developed by the",
-      tags$strong("OpenForis team"),
+      tags$a(href = "https://openforis.org", target = "_blank", tags$strong("OpenForis team")),
       " - With the support of the Aim4Forest programme"
     )
   )

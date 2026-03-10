@@ -5,8 +5,12 @@
 #'              survey descriptors. fct_readzip() is tailored to load this data.
 #'
 #' @param .path A path to the data ZIP file.
+#' @param .pb_session A shiny app session for updating shinyWidgets::updateProgressBar(). Default: NULL,
+#'                    activate only in a shiny context where a shinyWidgets::progressBar() is set.
+#' @param .pb_id The widget ID for shinyWidgets::updateProgressBar(). Default: NULL,
+#'               activate only in a shiny context where a shinyWidgets::progressBar() is set.
 #'
-#' @returns a list of entity level data frames and survey descriptors
+#' @returns a list of entity level data frames and survey descriptors.
 #'
 #' @examples
 #' zipfile <- system.file("extdata/OLAP_shiny_demo.zip", package = "arenalytics")
@@ -14,10 +18,12 @@
 #' summary(zipdata$OLAP_tree$tree_biomass_ag)
 #'
 #' @export
-fct_readzip <- function(.path){
+fct_readzip <- function(.path, .pb_session = NULL, .pb_id = NULL){
 
   ## !!! FOR TESTING ONLY
   # .path = "inst/extdata/OLAP_shiny_demo.zip"
+  # .pb_session = NULL
+  # .pb_id = NULL
   # !!!
 
   ## Get file names
@@ -39,6 +45,21 @@ fct_readzip <- function(.path){
     } else {
       tt <- NULL
     }
+
+    timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+    log       <- paste("Loaded", x)
+    pct <- which(zip_content == x) / length(zip_content) * 100
+    message(paste0("[", timestamp, "] ", log))
+    if (!is.null(.pb_session) & !is.null(.pb_id)){
+      shinyWidgets::updateProgressBar(
+        session = .pb_session,
+        id = .pb_id,
+        value = round(pct)
+      )
+    }
+
+    Sys.sleep(0.2)
+
     tt
 
   })

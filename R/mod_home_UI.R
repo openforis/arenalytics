@@ -19,12 +19,13 @@ mod_home_UI <- function(id, i18n){
     tags$img(
       src = "assets/landing-img.jpg",
       class = "img-fluid hero-image shadow-sm"
-    )
+    ),
+    style = "margin-bottom: 24px;"
   )
 
   hero_txt <- div(
     class = "col-md-6 order-2 order-md-1",
-    h1(class = "hero-title", i18n$t("A Smarter Way to Explore Data")),
+    h3(class = "hero-title", i18n$t("A Smarter Way to Explore Data")),
     p(
       class = "hero-subtitle mt-3",
       i18n$t("Explore your data from OpenForis Arena, gain insights and develop report-ready figures and statistics.")

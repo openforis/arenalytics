@@ -10,8 +10,10 @@ mod_tool_server <- function(id, rv) {
     ns <- session$ns
 
     ##
-    ## Acc1: Load data ######
+    ## Output and events: accordions ######
     ##
+
+    ## \_ Acc1: Load data =====
 
     ## !!! FOR TESTING ONLY
     # rv <- list()
@@ -42,28 +44,75 @@ mod_tool_server <- function(id, rv) {
     output$file_error_detail <- renderPrint({
       req(rv$inputs$check_zip)
       # if(!rv$inputs$check_zip$all_ok) data.frame(res = unlist(rv$inputs$check_zip))
-      if(!rv$inputs$check_zip$all_ok) cat("Missing files:\n", paste(rv$inputs$check_zip$missing, collapse = ", "))
+      if(!rv$inputs$check_zip$all_ok) {
+        cat("Missing files:\n", paste(rv$inputs$check_zip$missing, collapse = ", "))
+      }
     })
 
-    ## Acc2: dataviz ######
+    ## \_ Acc2: dataviz ======
+
+    ## \__ Read data ------
     observeEvent(input$btn_read_data, {
 
-      ## \_ Hide/Show panels ====
+      ## Hide/Show panels
       shinyjs::hide("readdata_accordion_msg")
       shinyjs::hide("readdata_panel_msg")
       shinyjs::show("readdata_panel_progress")
-      shinyjs::show("readdata_panel_btn_show")
-      #shinyjs::hide("readdata_panel_insights")
+      shinyjs::hide("readdata_panel_insights")
+      #shinyjs::show("readdata_panel_insights")
+
+      ## Reset progress
+      rv$inputs$data <- NULL
+      rv$inputs$data_ok <- FALSE
+      shinyjs::html("readdata_console", "")  # clear on restart
+      shinyWidgets::updateProgressBar(
+        session = session,
+        id = "readdata_progress",
+        value = 0
+      )
+      shinyjs::disable("btn_data_insights")
+
+      Sys.sleep(0.4)
+
+      ## Read data and update progress
+      rv$inputs$data <- withCallingHandlers(
+        {
+          fct_readzip(
+            .path = rv$inputs$path_zip, .pb_session = session, .pb_id = "readdata_progress"
+          )
+        },
+        message = function(m) {
+          shinyjs::html(id = "readdata_console", html = paste0(m$message, '<br>'), add = TRUE)
+          invokeRestart("muffleMessage")
+        }
+      )
+      ## Make insight button visible (to be improved)
+      if (!is.null(rv$inputs$data)) rv$inputs$data_ok <- TRUE
+
+    })
+
+    ## \___ Show insight button ------
+    observe({
+      req(rv$inputs$data_ok)
+      if (rv$inputs$data_ok) {
+        shinyjs::enable("btn_data_insights")
+      } else {
+        shinyjs::disable("btn_data_insights")
+      }
+    })
+
+    ## \___ Show insights ------
+    observeEvent(input$btn_data_insights, {
+      req(rv$inputs$data)
+
+      ## Hide progress and show insights
+      shinyjs::hide("readdata_panel_progress")
       shinyjs::show("readdata_panel_insights")
-
-      ## \_ Read data =====
-      rv$inputs$data <- fct_readzip(.path = rv$inputs$path_zip)
-
     })
 
 
 
-    ## Acc3 : Test crosstalk ######
+    ## \_ Acc3 : Test crosstalk ------
     observe({
       rv$test$user_iris <- datasets::iris |> # data("iris", envir = environment())
         dplyr::filter(is.null(input$species) | .data$Species %in% input$species) |>
@@ -80,7 +129,7 @@ mod_tool_server <- function(id, rv) {
 
 
 
-    ## Main panels ######
+    ## Outputs: Main panels ######
 
     ## \_ Data Panel ====
 
@@ -92,6 +141,11 @@ mod_tool_server <- function(id, rv) {
         rv$inputs$data$chain_summary$surveyLabel,
         sep = " - "
       )
+    })
+
+    output$readdata_insight_subtitle <- renderText({
+      req(rv$inputs$data)
+      paste(names(rv$inputs$data$chain_summary), collapse = "\n")
     })
 
     ## \_ Test crosstalk ====

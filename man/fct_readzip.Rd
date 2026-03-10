@@ -4,13 +4,19 @@
 \alias{fct_readzip}
 \title{Read OpenForis Arena OLAP zipfile data}
 \usage{
-fct_readzip(.path)
+fct_readzip(.path, .pb_session = NULL, .pb_id = NULL)
 }
 \arguments{
 \item{.path}{A path to the data ZIP file.}
+
+\item{.pb_session}{A shiny app session for updating shinyWidgets::updateProgressBar(). Default: NULL,
+activate only in a shiny context where a shinyWidgets::progressBar() is set.}
+
+\item{.pb_id}{The widget ID for shinyWidgets::updateProgressBar(). Default: NULL,
+activate only in a shiny context where a shinyWidgets::progressBar() is set.}
 }
 \value{
-a list of entity level data frames and survey descriptors
+a list of entity level data frames and survey descriptors.
 }
 \description{
 Processing chaina of OpenForis Arena surveys generate a ZIP file

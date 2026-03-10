@@ -14,7 +14,7 @@ mod_tool_UI <- function(id, i18n){
 
   ## \_ Sidebar ======
 
-  ## \___ Acc1: Load data ------
+  ## \__ Acc1: Load data ------
   ac1 <- accordion_panel(
     title = i18n$t("Load OpenForis OLAP ZIP file"),
     icon = bsicons::bs_icon("1-circle"),
@@ -86,14 +86,14 @@ mod_tool_UI <- function(id, i18n){
   ) ## END accordion_panel()
 
 
-  ## \___ Acc2: Read data ======
+  ## \__ Acc2: Read data ======
   ac2 <-  accordion_panel(
     title = i18n$t("Data visualization"),
     icon = bsicons::bs_icon("2-circle"),
     value = ns("ac2"),
 
     ## Content
-    ## \_____ Initial text ------
+    ## \___ Initial text ------
     div_data_init <- div(
       id = ns("readdata_accordion_msg"),
       bsicons::bs_icon("arrow-up"), " Start with uploading your data and run: '",
@@ -102,14 +102,14 @@ mod_tool_UI <- function(id, i18n){
       style = "font-style: italic;"
     ),
 
-    ## \___
+    ## \__
 
 
 
 
   )
 
-  ## \___ Acc3: Test crosstalk -------------------------------------------------
+  ## \__ Acc3: Test crosstalk ------
   ac3 <-  accordion_panel(
     title = i18n$t("Test crosstalk"),
     icon = bsicons::bs_icon("3-circle"),
@@ -139,8 +139,8 @@ mod_tool_UI <- function(id, i18n){
   )
 
   ## \_ Panels ======
-  ## \___ Panel: data ======
-  ## Data message
+  ## \__ Panel: data ======
+  ## \___ Initial message ------
   datapanel_msg <- div(
     id = ns("readdata_panel_msg"),
     bsicons::bs_icon("arrow-left"), " Start with uploading your OLAP zipfile in the sidebar.",
@@ -148,43 +148,52 @@ mod_tool_UI <- function(id, i18n){
     style = "font-style: italic;"
   )
 
-  ## Data progress
+  ## \___ Read progress ------
   datapanel_progress <- shinyjs::hidden(div(
-    id = ns("readdata_progress"),
+    id = ns("readdata_panel_progress"),
+    h3("Reading Data"),
     shinyWidgets::progressBar(
-      id = ns("prog_dataload"),
+      id = ns("readdata_progress"),
       value = 0,
       title = "Reading data",
       display_pct = TRUE
     ),
     br(),
-    verbatimTextOutput(outputId = ns("prog_console"))
+    div(
+      id = ns("readdata_console"),
+      style =
+        "height: 200px; overflow-y: auto; background-color:#f7f7f7; font-family:monospace; font-size: small;"
+    ),
+    br(),
+    shinyjs::disabled(
+      actionButton(inputId = ns("btn_data_insights"), label = "Show data insights")
+      )
   ))
 
-  ## Data insight btn
-  datapanel_show_insight <- shinyjs::hidden(div(
-    id = ns("readdata_panel_btn_show"),
-    actionButton(inputId = ns("btn_show_data"), label = "Show data insights")
-  ))
-
-  ## Data insights
-  datapanel_insight_title <- tags$h3(
+  ## \___ Data insights -----
+  datapanel_insight_title <- tags$h5(
     textOutput(ns("readdata_insight_title"))
   )
 
+  datapanel_insight_subtitle <- div(
+    style = "font-style: italic;",
+    textOutput(ns("readdata_insight_subtitle"))
+  )
 
   datapanel_insight <- shinyjs::hidden(div(
     id = ns("readdata_panel_insights"),
-    datapanel_insight_title
+    tags$h3("Data insights"),
+    datapanel_insight_title,
+    datapanel_insight_subtitle
   ))
 
-  ## \___ Panel: analysis ==========
+  ## \__ Panel: analysis ==========
   ## Statistical analysis
 
 
-  ## \___ Panel: test -----
+  ## \__ Panel: test -----
 
-  ## \_____ Value boxes -----
+  ## \___ Value boxes -----
   vb1 <- value_box(
     title = "Sepal Mean length",
     value = htmlOutput(ns("vb_seplen_mean")),
@@ -207,7 +216,7 @@ mod_tool_UI <- function(id, i18n){
   )
 
 
-  ## \_____ cards -----
+  ## \___ cards -----
   card1 <- card(
     full_screen = T,
     h5(i18n$t("Scatter 1")),
@@ -262,7 +271,6 @@ mod_tool_UI <- function(id, i18n){
         ## CONTENT
         datapanel_msg,
         datapanel_progress,
-        datapanel_show_insight,
         datapanel_insight
 
       ),
