@@ -18,7 +18,9 @@ the core files required to run the analysis.
 }
 \examples{
 zipfile <- system.file("extdata/OLAP_shiny_demo.zip", package = "arenalytics")
-zip_check <- fct_checkzip(.path = zipfile)
-zip_check$all_ok
+if (nzchar(zipfile) && file.exists(zipfile)) {
+  zip_check <- fct_checkzip(.path = zipfile)
+  zip_check$all_ok
+}
 
 }

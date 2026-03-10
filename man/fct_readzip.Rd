@@ -25,7 +25,9 @@ survey descriptors. fct_readzip() is tailored to load this data.
 }
 \examples{
 zipfile <- system.file("extdata/OLAP_shiny_demo.zip", package = "arenalytics")
-zipdata <- fct_readzip(.path = zipfile)
-summary(zipdata$OLAP_tree$tree_biomass_ag)
+if (nzchar(zipfile) && file.exists(zipfile)) {
+  zipdata <- fct_readzip(.path = zipfile)
+  summary(zipdata$OLAP_tree$tree_biomass_ag)
+}
 
 }
