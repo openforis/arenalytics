@@ -8,6 +8,7 @@
 #' @returns A list with TRUE/FALSE.
 #'
 #' @examples
+#' library(arenalytics)
 #' zipfile <- system.file("extdata/OLAP_shiny_demo.zip", package = "arenalytics")
 #' zip_check <- fct_checkzip(.path = zipfile)
 #' zip_check$all_ok
