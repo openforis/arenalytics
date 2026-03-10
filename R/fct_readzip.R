@@ -14,8 +14,10 @@
 #'
 #' @examples
 #' zipfile <- system.file("extdata/OLAP_shiny_demo.zip", package = "arenalytics")
-#' zipdata <- fct_readzip(.path = zipfile)
-#' summary(zipdata$OLAP_tree$tree_biomass_ag)
+#' if (nzchar(zipfile) && file.exists(zipfile)) {
+#'   zipdata <- fct_readzip(.path = zipfile)
+#'   summary(zipdata$OLAP_tree$tree_biomass_ag)
+#' }
 #'
 #' @export
 fct_readzip <- function(.path, .pb_session = NULL, .pb_id = NULL){
