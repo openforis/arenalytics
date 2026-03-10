@@ -22,6 +22,7 @@ mod_tool_server <- function(id, rv) {
     # rv$inputs$check_zip <- fct_checkzip(.path = rv$inputs$path_zip)
     ## !!!
 
+    ## \__ Upload and check ZIP ------
     observeEvent(input$load_zip, {
 
       rv$inputs$path_zip <- input$load_zip$datapath
@@ -49,17 +50,14 @@ mod_tool_server <- function(id, rv) {
       }
     })
 
-    ## \_ Acc2: dataviz ======
-
     ## \__ Read data ------
     observeEvent(input$btn_read_data, {
 
       ## Hide/Show panels
-      shinyjs::hide("readdata_accordion_msg")
+      # shinyjs::hide("readdata_accordion_msg")
       shinyjs::hide("readdata_panel_msg")
       shinyjs::show("readdata_panel_progress")
       shinyjs::hide("readdata_panel_insights")
-      #shinyjs::show("readdata_panel_insights")
 
       ## Reset progress
       rv$inputs$data <- NULL
@@ -109,6 +107,10 @@ mod_tool_server <- function(id, rv) {
       shinyjs::hide("readdata_panel_progress")
       shinyjs::show("readdata_panel_insights")
     })
+
+    ## \_ Acc2: dataviz ======
+
+
 
 
 

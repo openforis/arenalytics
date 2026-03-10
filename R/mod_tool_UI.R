@@ -93,14 +93,14 @@ mod_tool_UI <- function(id, i18n){
     value = ns("ac2"),
 
     ## Content
-    ## \___ Initial text ------
-    div_data_init <- div(
-      id = ns("readdata_accordion_msg"),
-      bsicons::bs_icon("arrow-up"), " Start with uploading your data and run: '",
-      i18n$t("Read data"), "'.",
-      class = "text-warning",
-      style = "font-style: italic;"
-    ),
+    # ## \___ Initial text ------
+    # div_data_init <- div(
+    #   id = ns("readdata_accordion_msg"),
+    #   bsicons::bs_icon("arrow-up"), " Start with uploading your data and run: '",
+    #   i18n$t("Read data"), "'.",
+    #   class = "text-warning",
+    #   style = "font-style: italic;"
+    # ),
 
     ## \__
 
@@ -172,7 +172,7 @@ mod_tool_UI <- function(id, i18n){
 
   ## \___ Data insights -----
   datapanel_insight_title <- tags$h5(
-    textOutput(ns("readdata_insight_title"))
+    tags$strong("Survey name: "), textOutput(ns("readdata_insight_title"), inline = TRUE)
   )
 
   datapanel_insight_subtitle <- div(
