@@ -38,8 +38,8 @@
 # usethis::use_github_action("check-standard")
 #
 # ## + turn package doc into GH pages
-# # usethis::use_pkgdown()
-# usethis::use_github_action("pkgdown")
+# # usethis::use_pkgdown() ## NOT USE
+# # usethis::use_github_action("pkgdown")
 #
 #
 # ## Import R scripts
@@ -76,3 +76,11 @@
 #     )
 #   })
 # }
+#
+# ## Run often
+# devtools::install()
+# devtools::load_all() ; shiny_run_arenalytics_dev()
+
+## Checks (disbale time stamps hanging)
+# Sys.setenv("_R_CHECK_SYSTEM_CLOCK_" = 0)
+# devtools::check()
