@@ -1,7 +1,3 @@
-//  While waiting for bslib::update_navs() to be included in bslib, it is not possible to use
-//  updateTabsetPanel() in a module.
-//  JS: receive message {id: "<ns-tool_tabs>", value: "res"} and click the matching element
-
 Shiny.addCustomMessageHandler('activate-tab', function(message) {
     try {
       var container = document.getElementById(message.id);

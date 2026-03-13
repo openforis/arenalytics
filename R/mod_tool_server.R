@@ -1,6 +1,7 @@
 #' Tool module server function
 #'
 #' @importFrom rlang .data
+#' @importFrom stats setNames
 #'
 #' @noRd
 mod_tool_server <- function(id, rv) {
@@ -9,12 +10,6 @@ mod_tool_server <- function(id, rv) {
 
     ns <- session$ns
 
-    ##
-    ## Output and events: accordions ######
-    ##
-
-    ## \_ Acc1: Load data =====
-
     ## !!! FOR TESTING ONLY
     # rv <- list()
     # rv$inputs <- list()
@@ -22,7 +17,12 @@ mod_tool_server <- function(id, rv) {
     # rv$inputs$check_zip <- fct_checkzip(.path = rv$inputs$path_zip)
     ## !!!
 
-    ## \__ Upload and check ZIP ------
+    ##
+    ## Accordions outputs and events ######
+    ##
+
+    ## + Acc1: check data ======
+    ## Action 1: (1) check data files list, (2) update message and (3) active read button
     observeEvent(input$load_zip, {
 
       rv$inputs$path_zip <- input$load_zip$datapath
@@ -50,14 +50,15 @@ mod_tool_server <- function(id, rv) {
       }
     })
 
-    ## \__ Read data ------
+    ## + Acc1: read data ======
+    ## . + Show progress -----
+    ## Action: show progress in panel insights
     observeEvent(input$btn_read_data, {
 
       ## Hide/Show panels
-      # shinyjs::hide("readdata_accordion_msg")
-      shinyjs::hide("readdata_panel_msg")
-      shinyjs::show("readdata_panel_progress")
-      shinyjs::hide("readdata_panel_insights")
+      shinyjs::hide("panel_insight_msg")
+      shinyjs::show("panel_insight_progress")
+      shinyjs::hide("panel_insights")
 
       ## Reset progress
       rv$inputs$data <- NULL
@@ -89,7 +90,7 @@ mod_tool_server <- function(id, rv) {
 
     })
 
-    ## \___ Show insight button ------
+    ## . + Enable insight button -----
     observe({
       req(rv$inputs$data_ok)
       if (rv$inputs$data_ok) {
@@ -99,44 +100,99 @@ mod_tool_server <- function(id, rv) {
       }
     })
 
-    ## \___ Show insights ------
+    ## . +  Show insights ------
     observeEvent(input$btn_data_insights, {
       req(rv$inputs$data)
 
       ## Hide progress and show insights
-      shinyjs::hide("readdata_panel_progress")
-      shinyjs::show("readdata_panel_insights")
+      shinyjs::hide("panel_insight_progress")
+      shinyjs::show("panel_insights")
     })
 
-    ## \_ Acc2: dataviz ======
-
-
-
-
-
-    ## \_ Acc3 : Test crosstalk ------
+    ## + Acc2: Insights ======
+    ## . + Create labels for pickerInput() ------
     observe({
-      rv$test$user_iris <- datasets::iris |> # data("iris", envir = environment())
+      req(rv$inputs$data)
+
+      if (length(names(rv$inputs$data)) > 0) {
+        rv$insights$entities <- names(rv$inputs$data) |> stringr::str_subset("OLAP_")
+        rv$insights$entities_labs <- rv$insights$entities |> stringr::str_remove("OLAP_")
+        rv$insights$entities_named <- setNames(rv$insights$entities, rv$insights$entities_labs)
+      } else {
+        rv$insights$entities_named <- NULL
+      }
+
+    })
+
+    observeEvent(input$insight_sel_entity, {
+      req(rv$inputs$data$SchemaSummary, rv$inputs$data$chain_summary)
+
+      rv$insights$vars <- rv$inputs$data$chain_summary$resultVariables |>
+        dplyr::filter(.data$entity == stringr::str_remove(input$insight_sel_entity, "OLAP_")) |>
+        dplyr::filter(.data$areaBased)
+      rv$insights$vars_named <- setNames(rv$insights$vars$name, rv$insights$vars$label)
+
+      ## USING SchemaSummary - WRONG, should use chain_summary$resultVariables
+      # rv$insights$vars <- rv$inputs$data$SchemaSummary |>
+      #   dplyr::filter(parentEntity == stringr::str_remove(input$insight_sel_entity, "OLAP_")) |>
+      #   dplyr::filter(type != "text") |>
+      #   dplyr::select(name, paste0("label_", rv$inputs$data$chain_summary$selectedLanguage))
+      #   # dplyr::select(name, paste0("label_", i18n$get_translation_language())) ## Get app language to set label
+      # rv$insights$vars_named <- setNames(rv$insights$vars[[1]], rv$insights$vars[[2]])
+
+    })
+
+    ## . + Make pickerInput ------
+    output$insight_entity <- renderUI({
+      req(rv$inputs$data, rv$insights$entities_named)
+      selectInput(
+        inputId = ns("insight_sel_entity"),
+        label = "Entities",
+        choices = rv$insights$entities_named,
+        multiple = FALSE
+        )
+    })
+
+    output$insight_vars <- renderUI({
+      req(rv$inputs$data, rv$insights$vars_named)
+      selectInput(
+        inputId = ns("insight_sel_vars"),
+        label = "Area-based Variables",
+        choices = rv$insights$vars_named,
+        selected = rv$insights$vars_named,
+        multiple = TRUE
+      )
+    })
+
+
+    ## + Acc 4: crosstalk ======
+    ## + + Filter data ------
+    observe({
+      rv$ct$user_iris <- datasets::iris |> # data("iris", envir = environment())
         dplyr::filter(is.null(input$species) | .data$Species %in% input$species) |>
         dplyr::filter(
           .data$Petal.Length >= min(input$petal_length),
           .data$Petal.Length<= max(input$petal_length)
         )
-      rv$test$shared_iris <- crosstalk::SharedData$new(rv$test$user_iris)
+      rv$ct$shared_iris <- crosstalk::SharedData$new(rv$ct$user_iris)
     })
 
-    observeEvent(input$btn_panel3, {
-      session$sendCustomMessage("activate-tab", list(id = ns("tool_tabs"), value = "tab_test"))
+    ## + + Go to crosstalk panel ------
+    observeEvent(input$btn_to_ctalk, {
+      session$sendCustomMessage("activate-tab", list(id = ns("tool_tabs"), value = "tab_ctalk"))
+      session$sendCustomMessage("scroll_top", list())
     })
 
 
 
-    ## Outputs: Main panels ######
+    ##
+    ## Panel outputs ######
+    ##
 
-    ## \_ Data Panel ====
+    ## + Insights outputs ======
 
-    ## \___ Title ------
-    output$readdata_insight_title <- renderText({
+    ## . + Survey title ------
+    output$insight_title <- renderText({
       req(rv$inputs$data)
       paste(
         rv$inputs$data$chain_summary$surveyName,
@@ -145,37 +201,61 @@ mod_tool_server <- function(id, rv) {
       )
     })
 
-    output$readdata_insight_subtitle <- renderText({
+    ## . + Variables ------
+    output$insight_chain <- renderTable({
       req(rv$inputs$data)
-      paste(names(rv$inputs$data$chain_summary), collapse = "\n")
+
+      rv$inputs$data$chain_summary$resultVariables |>
+        dplyr::filter(.data$active) |>
+        dplyr::group_by(.data$entity, .data$areaBased) |>
+        dplyr::summarise(n_var = dplyr::n(), .groups = "drop") |>
+        dplyr::mutate(areaBased = dplyr::if_else(.data$areaBased, "areaBased", "notAreaBased")) |>
+        tidyr::pivot_wider(names_from = .data$areaBased, values_from = .data$n_var) |>
+        dplyr::mutate(
+          areaBased = dplyr::if_else(is.na(.data$areaBased), 0, .data$areaBased),
+          notAreaBased = dplyr::if_else(is.na(.data$notAreaBased), 0, .data$notAreaBased)
+        )
+
     })
 
-    ## \_ Test crosstalk ====
-    ## \___ Virtual boxes ----
+    output$insight_summary <- renderPrint({
+      req(
+        rv$inputs$data, input$insight_sel_entity, input$insight_sel_vars,
+        input$insight_sel_vars %in% names(rv$inputs$data[[input$insight_sel_entity]])
+        )
 
+      # rv$insights$entities_named
+      # rv$insights$vars_named
+      summary(rv$inputs$data[[input$insight_sel_entity]][,input$insight_sel_vars])
+
+    })
+
+    ## + crosstalk outputs ======
+
+    ## + + Virtual boxes ------
     output$vb_seplen_mean <- renderUI({
-      fct_mean(.df = rv$test$user_iris, .colnum = .data$Sepal.Length, .rounding = 1)
+      fct_mean(.df = rv$ct$user_iris, .colnum = .data$Sepal.Length, .rounding = 1)
     })
 
     output$vb_sepwid_mean <- renderUI({
-      fct_mean(.df = rv$test$user_iris, .colnum = .data$Sepal.Width, .rounding = 1)
+      fct_mean(.df = rv$ct$user_iris, .colnum = .data$Sepal.Width, .rounding = 1)
     })
 
     output$vb_nb_species <- renderUI({
-      length(unique(rv$test$user_iris$Species))
+      length(unique(rv$ct$user_iris$Species))
     })
 
-    ## \___ Panel cards ------
+    ## + + Cards ------
     output$scatter1 <- d3scatter::renderD3scatter({
-      d3scatter::d3scatter(rv$test$shared_iris, ~Petal.Length, ~Petal.Width, ~Species, width = "100%")
+      d3scatter::d3scatter(rv$ct$shared_iris, ~Petal.Length, ~Petal.Width, ~Species, width = "100%")
     })
 
     output$scatter2 <- d3scatter::renderD3scatter({
-      d3scatter::d3scatter(rv$test$shared_iris, ~Sepal.Length, ~Sepal.Width, ~Species, width = "100%")
+      d3scatter::d3scatter(rv$ct$shared_iris, ~Sepal.Length, ~Sepal.Width, ~Species, width = "100%")
     })
 
     output$summary <- renderPrint({
-      df <- rv$test$shared_iris$data(withSelection = TRUE) |>
+      df <- rv$ct$shared_iris$data(withSelection = TRUE) |>
         dplyr::filter(.data$selected_ | is.na(.data$selected_)) |>
         dplyr::mutate(selected_ = NULL)
 

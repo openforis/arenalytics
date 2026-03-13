@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny_run_arenalytics.R
 \name{shiny_run_arenalytics}
 \alias{shiny_run_arenalytics}
-\title{TITLE}
+\title{Analytical Dashboard for OpenForis Arena}
 \usage{
 shiny_run_arenalytics(...)
 }
@@ -10,15 +10,14 @@ shiny_run_arenalytics(...)
 \item{...}{arguments to pass to shinyApp}
 }
 \description{
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula
-imperdiet finibus. Sed urna sem, molestie at sodales non, viverra vitae
-mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-convallis tristique mauris, nec volutpat ligula dapibus eget.
+function to launch the ShinyApp Arena Analytics. This app helps users to explore
+their data from OpenForis Arena, gain insights and develop report-ready figures and
+statistics.
 }
 \examples{
 if (interactive()) {
 
-shiny_run_APPNAME()
+shiny_run_arenalytics()
 
 }
 

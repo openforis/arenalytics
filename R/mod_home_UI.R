@@ -1,7 +1,7 @@
 #' Home module UI function
 #'
 #' @noRd
-mod_home_UI <- function(id, i18n){
+mod_home_UI <- function(id, i18n, .tr){
 
   ## From https://shiny.rstudio.com/articles/modules.html
   # `NS(id)` returns a namespace function, which was save as `ns` and will
@@ -25,16 +25,13 @@ mod_home_UI <- function(id, i18n){
 
   hero_txt <- div(
     class = "col-md-6 order-2 order-md-1",
-    h3(class = "hero-title", i18n$t("A Smarter Way to Explore Data")),
-    p(
-      class = "hero-subtitle mt-3",
-      i18n$t("Explore your data from OpenForis Arena, gain insights and develop report-ready figures and statistics.")
-    ),
+    p(class = "hero-title", i18n$t(.tr$hero_title)),
+    p(class = "hero-subtitle mt-3", i18n$t(.tr$hero_txt)),
     br(),
     ## ACTION BUTTON
     actionButton(
       inputId = ns("to_tool"),
-      label = i18n$t("Get Started"),
+      label = i18n$t(.tr$hero_btn),
       class = "btn btn-primary btn-lg px-4"
     )
   )
@@ -44,26 +41,50 @@ mod_home_UI <- function(id, i18n){
   card1 <- card(
     class = "feature-card shadow-sm",
     card_body(
-      h4("OpenForis Arena"),
-      p("Create surveys and collect data with [OpenForis Arena](https://www.openforis.org/arena/). Arena analytics will help you get insigths on your data.")
+      h3("Arena Analytics", style = "font-weight:700;"),
+      p(i18n$t(.tr$feat1_p1)),
+      p(
+        i18n$t(.tr$feat1_p2),
+        tags$a(
+          href = "https://github.com/openforis/arenalytics",
+          target = "_blank",
+          tags$span("Github", bsicons::bs_icon("github"))
+        )
+      ),
+      p(
+        i18n$t(.tr$feat1_p3), HTML("&nbsp;"),
+        actionButton(inputId = ns("to_tool2"), label = i18n$t(.tr$feat1_btn))
+      )
     )
   )
 
   card2 <- card(
     class = "feature-card shadow-sm",
     card_body(
-      h4("Explore your data"),
-      p("Generate insights, create figures and summary statistics from your data [BUTTON TO TOOL.")
+      h3("OpenForis Arena", style = "font-weight:700;"),
+      p(
+      i18n$t(.tr$feat2_p1),
+      tags$a(
+        href = "https://www.openforis.org/arena/",
+        target = "_blank",
+        span("OpenForis Arena", tags$img(src = "assets/logo-arena.png", height = "20px"), ".")
+        )
+      ),
+      p(i18n$t(.tr$feat2_p2)),
+      p(i18n$t(.tr$feat2_p3))
     )
   )
 
   card3 <- card(
     class = "feature-card shadow-sm",
     card_body(
-      h4("Need help?"),
-      p("Tutorials, examples and additional resources ca help you harness the analytical power of Arena Analytics."),
-      p("For more information, go to:", HTML("&nbsp;"),
-        actionButton(inputId = ns("to_about"), label = "About")),
+      h3(i18n$t(.tr$feat3_title), style = "font-weight:700;"),
+      p(i18n$t(.tr$feat3_p1)),
+      p(i18n$t(.tr$feat3_p2)),
+      p(
+        i18n$t(.tr$feat3_p3), HTML("&nbsp;"),
+        actionButton(inputId = ns("to_about"), label = i18n$t(.tr$feat3_btn))
+      )
     )
   )
 

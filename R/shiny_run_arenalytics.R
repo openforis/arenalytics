@@ -1,9 +1,8 @@
-#' TITLE
+#' Analytical Dashboard for OpenForis Arena
 #'
-#' @description Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula
-#'              imperdiet finibus. Sed urna sem, molestie at sodales non, viverra vitae
-#'              mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-#'              convallis tristique mauris, nec volutpat ligula dapibus eget.
+#' @description function to launch the ShinyApp Arena Analytics. This app helps users to explore
+#'              their data from OpenForis Arena, gain insights and develop report-ready figures and
+#'              statistics.
 #'
 #' @param ... arguments to pass to shinyApp
 #'
@@ -14,7 +13,7 @@
 #' @examples
 #' if (interactive()) {
 #'
-#' shiny_run_APPNAME()
+#' shiny_run_arenalytics()
 #'
 #' }
 #'
@@ -33,6 +32,11 @@ shiny_run_arenalytics <- function(...) {
   )
   i18n$set_translation_language('en')
 
+  ## Simplify text keys
+  ## All text is stored in R/utils-tr.R and called via keys with .tr_keys()
+  ## Simplified here to: .tr
+  .tr <- .tr_keys()
+
   ## + Javascript ===============================
   ## Script moved to files in inst/assets and called in the header
 
@@ -40,20 +44,15 @@ shiny_run_arenalytics <- function(...) {
   ## + UI Elements =============================================================
 
   ## App title with logo (as function because i18n$t() needs to be inside page_navbar())
-  app_title <- function(
-    .title = "Analytical Dashboard for OpenForis Arena",
-    .alt = "Arena Dashboard",
-    .logo = "assets/logo.png",
-    .logo_height = '40px' ## CANNOT EXCEED 40px to avoid resizing issues (minor)
-    ) {
+  app_title <- function() {
     div(
       tags$a(
         href = "./", ## Send back to home page
-        alt = .alt,
-        tags$img(src = .logo, height = .logo_height),
+        alt = "Arena Dashboard",
+        tags$img(src = "assets/logo.png", height = '40px', class = "navbar-logo"), ## CANNOT EXCEED 40px to avoid resizing issues (minor)
         .noWS = "before-end"
       ),
-      i18n$t(.title),
+      i18n$t(.tr$app_title),
       style = 'display:inline;font-color: black !important; font-family: "Inter"'
     )
   }
@@ -75,7 +74,6 @@ shiny_run_arenalytics <- function(...) {
     ),
     code_font = bslib::font_google("Fira Code"),
     heading_font = bslib::font_google("Inter"),
-    #heading_font = bslib::font_collection("-apple-system", "BlinkMacSystemFont", "Lato", "Inter", "Arial"),
     primary = app_primary_color,
     secondary = app_secondary_color,
   )
@@ -99,9 +97,9 @@ shiny_run_arenalytics <- function(...) {
   app_footer <- div(
     class = "container footer text-center",
     tags$small(
-      "(c) 2026 Arena Analytics - Developed by the",
-      tags$a(href = "https://openforis.org", target = "_blank", tags$strong("OpenForis team")),
-      " - With the support of the Aim4Forest programme"
+      "(c) 2026 MyApp - Developed by ",
+      tags$strong("Your Name"),
+      " - With the support of XYZ Institute"
     )
   )
 
@@ -110,77 +108,86 @@ shiny_run_arenalytics <- function(...) {
   ## UI ########################################################################
   ##
 
-  ui <- bslib::page_navbar(
+  ui <- shiny::tagList(
 
-    ## + Navbar setup ------
-    id = "navbar",
-    title = app_title(),
-    window_title = app_window_title,
-    theme = app_theme,
-    navbar_options = navbar_options(
-      bg = "#f8f9fa",
-      position = "fixed-top",
-      class = "navbar-expand-md" ## "navbar-expand-sm"
+    ## + Setup =================================================================
+
+    ## HEAD scripts
+    shiny::withMathJax(),
+    shinyjs::useShinyjs(),
+    shinyWidgets::useSweetAlert(),
+    shiny.i18n::usei18n(i18n),
+    tags$head(
+      ## JS custom handler to updateTabsetPanel()
+      tags$script(src = "assets/js_activate_tab.js"),
+      tags$script(src = "assets/js_handlers.js"),
+      ## CSS Style
+      tags$link(rel = "stylesheet", type = "text/css", href = "assets/style.css"),
+      ## Favicons
+      tags$link(rel="icon", type="image/png", href="assets/favicon/favicon-96x96.png", sizes="96x96"),
+      tags$link(rel="icon", type="image/svg+xml", href="assets/favicon/favicon.svg"),
+      tags$link(rel="shortcut icon", href="assets/favicon/favicon.ico"),
+      tags$link(rel="apple-touch-icon", sizes="180x180", href="assets/favicon/apple-touch-icon.png"),
+      tags$meta(name="apple-mobile-web-app-title", content="Arena Analytics"),
+      tags$link(rel="manifest", href="assets/favicon/site.webmanifest"),
     ),
-    fillable = FALSE, ## Not needed for now, make a tab fill the whole browser, cool for leaflets
-    # inverse = FALSE, ## Not working well with yeti, overridden in assets/styles.css
+    ## HTML Dependency - flag icons used for translation selector
+    htmltools::htmlDependency(
+      name = "flag-icons",
+      version = "6.6.6",
+      src = c(href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/"),
+      stylesheet = "css/flag-icons.min.css"
+    ),
 
-    ## + Header scripts ------
-    header = shiny::tagList(
-      shiny::withMathJax(),
-      shinyjs::useShinyjs(),
-      shinyWidgets::useSweetAlert(),
-      shiny.i18n::usei18n(i18n),
-      tags$head(
-        ## JS custom Handler to updateTabsetPanel()
-        tags$script(src = "assets/js_activate_tab.js"),
-        ## CSS Style
-        tags$link(rel = "stylesheet", type = "text/css", href = "assets/style.css"),
-        ## Favicon
-        tags$link(rel="icon", type="image/png", href="/assets/favicon/favicon-96x96.png", sizes="96x96"),
-        tags$link(rel="icon", type="image/svg+xml", href="/assets/favicon/favicon.svg"),
-        tags$link(rel="shortcut icon", href="/assets/favicon/favicon.ico"),
-        tags$link(rel="apple-touch-icon", sizes="180x180", href="/assets/favicon/apple-touch-icon.png"),
-        tags$meta(name="apple-mobile-web-app-title", content="Arena Analytics"),
-        tags$link(rel="manifest", href="/assets/favicon/site.webmanifest")
+    ## + Layout UI elements ====================================================
+
+    bslib::page_navbar(
+
+      ## Navbar setup ------
+      id = "navbar",
+      title = app_title(),
+      window_title = app_window_title,
+      theme = app_theme,
+      navbar_options = navbar_options(
+        bg = "#f8f9fa",
+        position = "fixed-top",
+        class = "navbar-expand-sm"
+        ),
+      fillable = FALSE, ## Not needed for now, make a tab fill the whole browser, cool for leaflets
+      # inverse = FALSE, ## Not working well with yeti, overridden in assets/styles.css
+      footer = app_footer,
+
+      ## Panels ------
+      nav_spacer(), ## align menu to the right
+
+      nav_panel(
+        title = i18n$t(.tr$nav_home),
+        value = "home",
+        #icon = icon("campground"),
+        mod_home_UI("tab_home", i18n = i18n, .tr = .tr)
       ),
-      ## HTML Dependency - flag icons used for translation selector
-      htmltools::htmlDependency(
-        name = "flag-icons",
-        version = "6.6.6",
-        src = c(href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/"),
-        stylesheet = "css/flag-icons.min.css"
-      )
-    ),
-    footer = app_footer,
 
-    ## Panels ------
-    nav_spacer(), ## align menu to the right
+      nav_panel(
+        title = i18n$t(.tr$nav_tool),
+        value = "tool",
+        #icon = icon("mug-hot"),
+        mod_tool_UI("tab_tool", i18n = i18n, .tr = .tr)
+      ),
 
-    nav_panel(
-      title = i18n$t("Home"),
-      value = "home",
-      #icon = icon("campground"),
-      mod_home_UI("tab_home", i18n = i18n)
-    ),
+      nav_panel(
+        title = i18n$t(.tr$nav_about),
+        value = "about",
+       #icon = icon("info"),
+        mod_about_UI("tab_about", i18n = i18n, .tr = .tr)
+      ),
 
-    nav_panel(
-      title = i18n$t("Tool"),
-      value = "tool",
-      #icon = icon("mug-hot"),
-      mod_tool_UI("tab_tool", i18n = i18n)
-    ),
+      nav_item(language_selector)
 
-    nav_panel(
-      title = i18n$t("About"),
-      value = "about",
-      #icon = icon("info"),
-      mod_about_UI("tab_about", i18n = i18n)
-    ),
+    ) #|> ## End page_navbar
+      ## Make navbar larger before switch to menu button
+      #shiny::tagAppendAttributes(.cssSelector = "nav", class = "navbar-expand-md")
 
-    nav_item(language_selector)
-
-  ) ## END page_navbar
+  ) ## End tagList
 
 
 
@@ -193,10 +200,10 @@ shiny_run_arenalytics <- function(...) {
     ## + Initiate reactive values list to be passed between modules ####
     ## See https://rtask.thinkr.fr/communication-between-modules-and-its-whims/
     rv <- reactiveValues(
-      inputs  = reactiveValues(),
-      rv2     = reactiveValues(),
-      actions = reactiveValues(),
-      test    = reactiveValues()
+      inputs   = reactiveValues(),
+      insights = reactiveValues(),
+      ct       = reactiveValues(),
+      actions  = reactiveValues()
     )
 
     ## Save language value to show/hide divs with shinyjs
@@ -218,8 +225,14 @@ shiny_run_arenalytics <- function(...) {
       nav_select(id = "navbar", selected = "tool")
     })
 
+    observeEvent(rv$actions$to_tool2, {
+      nav_select(id = "navbar", selected = "tool")
+      session$sendCustomMessage("scroll_top", list()) ## Go to top of the page
+    })
+
     observeEvent(rv$actions$to_about, {
       nav_select(id = "navbar", selected = "about")
+      session$sendCustomMessage("scroll_top", list())
     })
 
 
