@@ -24,6 +24,7 @@ Imports:
     shinyjs,
     shinyWidgets,
     stringr,
+    tidyr,
     zip
 Remotes: 
     jcheng5/d3scatter
