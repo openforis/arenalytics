@@ -203,11 +203,14 @@ shiny_run_arenalytics <- function(...) {
       inputs   = reactiveValues(),
       insights = reactiveValues(),
       ct       = reactiveValues(),
-      actions  = reactiveValues()
+      actions  = reactiveValues(),
+      ## $$$
+      analysis = reactiveValues()
+      ## $$$
     )
 
-    ## Save language value to show/hide divs with shinyjs
-    r_lang <- reactive({ input$language })
+    ## NOT USED - Save language value to show/hide entire divs with shinyjs rather than long i18n translators
+    # r_lang <- reactive({ input$language })
 
     ## + Module server functions ####
     mod_home_server("tab_home", rv = rv)
@@ -222,10 +225,6 @@ shiny_run_arenalytics <- function(...) {
     })
 
     observeEvent(rv$actions$to_tool, {
-      nav_select(id = "navbar", selected = "tool")
-    })
-
-    observeEvent(rv$actions$to_tool2, {
       nav_select(id = "navbar", selected = "tool")
       session$sendCustomMessage("scroll_top", list()) ## Go to top of the page
     })
