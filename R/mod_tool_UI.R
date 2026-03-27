@@ -92,7 +92,7 @@ mod_tool_UI <- function(id, i18n, .tr){
 
   ## . + Acc2: Insights --------
   ac2 <-  accordion_panel(
-    title = i18n$t("Get insights"),
+    title = "Get insights",
     icon = bsicons::bs_icon("2-circle"),
     value = ns("ac2"),
 
@@ -113,19 +113,43 @@ mod_tool_UI <- function(id, i18n, .tr){
 
   ## . + Accordion 3 -------------------------------------------
   ac3 <-  accordion_panel(
-    title = i18n$t("Run analysis"),
+    title = "Run analysis",
     icon = bsicons::bs_icon("3-circle"),
     value = ns("ac3"),
 
+    ## $$$
     ## Content
-    h4("coming soon")
+    ## h4("coming soon"),
+
+    ## Entity selector (populated after data loads)
+    uiOutput(ns("analysis_entity")),
+
+    ## Grouped dimension selector (populated after entity is chosen)
+    uiOutput(ns("analysis_dims")),
+
+    ## Stratum auto-include note (only when sampling design requires it)
+    uiOutput(ns("analysis_strat_text")),
+
+    ## Run button
+    div(
+      style = "margin-top: 1rem;",
+      shinyjs::disabled(
+        actionButton(
+          inputId = ns("btn_run_analysis"),
+          label   = "Run analysis",
+          icon    = icon("play"),
+          class   = "btn-primary btn-sm"
+        )
+      )
+    )
+    ## $$$
   )
 
   ## . + Acc4: test crosstalk --------
   ac4 <-  accordion_panel(
     title = "Test Crosstalk",
     icon = bsicons::bs_icon("3-circle"),
-    value = ns("ac3"),
+    value = ns("ac4"),
 
     ## Content
     selectInput(ns("species"), "Species", levels(datasets::iris$Species), multiple = TRUE),
@@ -168,7 +192,7 @@ mod_tool_UI <- function(id, i18n, .tr){
     div(
       id = ns("readdata_console"),
       style =
-        "height: 200px; overflow-y: auto; background-color:#f7f7f7; font-family:monospace; font-size: small;"
+        "height: 300px; overflow-y: auto; background-color:#f7f7f7; font-family:monospace; font-size: small;"
     ),
     br(),
     shinyjs::disabled(
@@ -221,13 +245,13 @@ mod_tool_UI <- function(id, i18n, .tr){
 
   ## Cards
   card1 <- card(
-    full_screen = T,
+    full_screen = TRUE,
     h5(i18n$t("Scatter 1")),
     d3scatter::d3scatterOutput(ns("scatter1"))
   )
 
   card2 <- card(
-    full_screen = T,
+    full_screen = TRUE,
     h5(i18n$t("Scatter 2")),
     d3scatter::d3scatterOutput(ns("scatter2"))
   )
@@ -282,13 +306,72 @@ mod_tool_UI <- function(id, i18n, .tr){
         ))
       ),
 
-      ## + panel 2===========================================================
+      ## + panel Analysis ======================================================
 
       nav_panel(
         title = i18n$t("Analysis"),
-        value = "tab2",
+        value = "tab_analysis",
         icon = icon("chart-simple"),
 
+        ## $$$
+
+        ## No-results message (visible until first analysis is run)
+        div(
+          id    = ns("analysis_no_result"),
+          bsicons::bs_icon("arrow-left"),
+          " Configure and run an analysis in the sidebar.",
+          class = "text-warning",
+          style = "font-style: italic;"
+        ),
+
+        ## Results layout - hidden until analysis completes
+        shinyjs::hidden(div(
+          id = ns("analysis_results"),
+
+          ## -- Row 1: main plot controls ----------------------------------
+          card(
+            layout_column_wrap(
+              width = "180px",
+              fill  = FALSE,
+              selectInput(ns("plot_dim"),     "X-axis dimension", choices = NULL),
+              selectInput(ns("plot_measure"), "Measure (Y axis)", choices = NULL),
+              ## $$$
+              ## selectInput(ns("plot_fill"),  "Group by (fill)", choices = NULL),
+              ## selectInput(ns("plot_facet"), "Facet by",        choices = NULL),
+              selectizeInput(ns("plot_fill"),  "Group by (fill)", choices = NULL,
+                             options = list(placeholder = "-- none --", allowEmptyOption = TRUE)),
+              selectizeInput(ns("plot_facet"), "Facet by",        choices = NULL,
+                             options = list(placeholder = "-- none --", allowEmptyOption = TRUE)),
+              ## $$$
+              ## $$$
+              ## class = "pt-4" reduced to pt-1
+              div(
+                class = "pt-1",
+                checkboxInput(ns("plot_errbar"), "Error bars", value = TRUE)
+              )
+              ## $$$
+            ),
+            ## -- Row 2: extra dimension filters (shown only when >3 dims used) --
+            uiOutput(ns("analysis_extra_filters"))
+          ),
+
+          ## -- MEANS plot --------------------------------------------------
+          card(
+            full_screen  = TRUE,
+            card_header("Means (per ha)"),
+            plotOutput(ns("analysis_plot_means"), height = "400px")
+          ),
+
+          ## -- TOTALS plot -------------------------------------------------
+          card(
+            full_screen  = TRUE,
+            card_header("Totals"),
+            plotOutput(ns("analysis_plot_totals"), height = "400px")
+          )
+
+        ))
+
+        ## $$$
       ),
 
       ## + crosstalk panel =========
