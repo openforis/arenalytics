@@ -78,9 +78,32 @@
 # }
 #
 # ## Run often
+# devtools::document()
 # devtools::install()
-# devtools::load_all() ; shiny_run_arenalytics_dev()
+# devtools::load_all() ; shiny_run_arenalytics()
+## Checks
+# Sys.setenv("_R_CHECK_SYSTEM_CLOCK_" = 0) ; devtools::check()
 
-## Checks (disbale time stamps hanging)
-# Sys.setenv("_R_CHECK_SYSTEM_CLOCK_" = 0)
-# devtools::check()
+
+# root    <- "/Users/gaelsola/Github-collabs/arenalytics"
+# patterns <- c("arenalytics\\.dev", "shiny_run_arenalytics_dev")
+#
+# file_paths <- list.files(root, recursive = TRUE, full.names = TRUE) |>
+#   stringr::str_subset(pattern = "/man|/inst|NAMESPACE", negate = TRUE)
+#
+# purrr::map(file_paths, \(f) {
+#   tryCatch({
+#     lines   <- readLines(f, warn = FALSE)
+#     matches <- grep(paste(patterns, collapse = "|"), lines)
+#     if (length(matches) > 0) {
+#       tibble::tibble(
+#         file    = stringr::str_remove(f, stringr::fixed(root)),
+#         line_no = matches,
+#         content = stringr::str_trim(lines[matches])
+#       )
+#     }
+#   }, error = \(e) NULL)
+# }) |>
+#   purrr::list_rbind()
+
+
