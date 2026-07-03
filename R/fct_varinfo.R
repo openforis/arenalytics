@@ -52,7 +52,7 @@ fct_varinfo <- function(.zip, .entity){
   ## 2. Column metadata ------
   ## Result variables: code dimensions + measures derived from chain
   rv_meta <- resvar |>
-    dplyr::select("name", "type", "categoryName", parentEntity = "entity", "label") |>
+    dplyr::select("name", "type", "categoryName", parentEntity = "entity", "label", dplyr::any_of("unit")) |>
     dplyr::mutate(
       report_type = dplyr::if_else(.data$type == "Q", "measure", "dimension"),
       type        = dplyr::if_else(.data$type == "Q", "numeric", "code"),
