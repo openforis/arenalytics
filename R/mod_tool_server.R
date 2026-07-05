@@ -349,17 +349,24 @@ mod_tool_server <- function(id, rv) {
 
       if (!is.null(result)) {
         # lang <- rv$inputs$data$chain_summary$selectedLanguage %||% "en"
-        lang <- rv$inputs$data$chain_summary$selectedLanguage
+        lang      <- rv$inputs$data$chain_summary$selectedLanguage
         dim_meta  <- rv$analysis$dim_meta
         cats      <- rv$inputs$data$categories
+        taxos     <- rv$inputs$data$taxonomies %||% list()
 
-        result$MEANS  <- replace_dim_labels(result$MEANS,  dim_meta, cats, lang)
-        result$TOTALS <- replace_dim_labels(result$TOTALS, dim_meta, cats, lang)
+        result$MEANS  <- replace_dim_labels(result$MEANS,  dim_meta, cats, lang, taxos)
+        result$TOTALS <- replace_dim_labels(result$TOTALS, dim_meta, cats, lang, taxos)
 
         if (!identical(input$analysis_mode, "area")) {
           result$MEANS  <- result$MEANS  |> dplyr::select(-dplyr::any_of(c("area", "JOIN_COL")))
           result$TOTALS <- result$TOTALS |> dplyr::select(-dplyr::any_of(c("area", "JOIN_COL")))
         }
+
+        count_cols <- c("item_count", "base_unit_count", "cluster_count")
+        result$MEANS  <- result$MEANS  |>
+          dplyr::relocate(dplyr::any_of(count_cols), .after = dplyr::last_col())
+        result$TOTALS <- result$TOTALS |>
+          dplyr::relocate(dplyr::any_of(count_cols), .after = dplyr::last_col())
 
         rv$analysis$result <- result
         rv$analysis$dims   <- rv$analysis$dims_sel
@@ -386,15 +393,17 @@ mod_tool_server <- function(id, rv) {
     ## + Insights outputs ======
 
     ## . + Survey title ------
-    output$insight_title <- renderText({
-      req(rv$inputs$data)
-      rv$inputs$data$chain_summary$surveyLabel
-    })
+    # output$insight_title <- renderText({
+    #   req(rv$inputs$data)
+    #   rv$inputs$data$chain_summary$surveyLabel
+    # })
 
     ## . + Chain summary info block ------
     output$insight_chain_info <- renderUI({
       req(rv$inputs$data)
-      ch <- rv$inputs$data$chain_summary
+      ch     <- rv$inputs$data$chain_summary
+      lang   <- ch$selectedLanguage %||% "en"
+      schema <- tibble::as_tibble(rv$inputs$data$schema_summary)
 
       info_row <- function(label, value) {
         tags$p(
@@ -403,21 +412,53 @@ mod_tool_server <- function(id, rv) {
         )
       }
 
-      is_clustered  <- nzchar(ch$clusteringEntity %||% "")
-      cluster_attr  <- if (is_clustered) {
-        paste(ch$clusteringEntityKeys %||% "-", collapse = ", ")
+      ## Sampling strategy code → human-readable name
+      sampling_strategy_labels <- c(
+        "1" = "Random Sampling",
+        "2" = "Systematic Sampling",
+        "3" = "Stratified Random Sampling",
+        "4" = "Stratified Systematic Sampling",
+        "5" = "Two-phase Sampling"
+      )
+      # strat_name <- paste0(
+      #   sampling_strategy_labels[as.character(ch$samplingStrategy %||% "")] %||% "Unknown",
+      #   " (code: ", ch$samplingStrategy, ")"
+      # )
+      strat_name <- paste0(
+        sampling_strategy_labels[as.character(ch$samplingStrategy %||% "")] %||% "Unknown"
+        )
+
+
+      ## Stratification attribute label
+      stratum_raw <- ch$stratumAttribute %||% ""
+      stratum_label <- if (nzchar(stratum_raw)) {
+        paste0(utils_find_label(schema, stratum_raw, lang), " [", stratum_raw, "]")
       } else {
         "-"
       }
 
+      ## Clustering variable labels
+      is_clustered <- nzchar(ch$clusteringEntity %||% "")
+      cluster_attr <- if (is_clustered) {
+        keys   <- ch$clusteringEntityKeys %||% character(0)
+        labels <- utils_find_label(schema, keys, lang)
+        paste(paste0(labels, " [", keys, "]"), collapse = ", ")
+      } else {
+        "-"
+      }
+
+      survey_name <- paste0(ch$surveyLabel %||% ch$surveyName, " [", ch$surveyName, "]")
+
       tags$div(
-        info_row("Survey",                    ch$surveyName %||% "-"),
-        info_row("Cycle",                   ch$selectedCycle %||% "-"),
-        info_row("Sampling strategy",         ch$samplingStrategy %||% "-"), # Retrieve the sampling design name
-        info_row("Stratification attribute",       ch$stratumAttribute %||% "-"),
-        info_row("Clustering",                     if (is_clustered) "Yes" else "No"),
-        info_row("Clustering variable",           cluster_attr),
-        info_row("Non-response bias correction",   "Unknown")
+        tags$p(
+          tags$strong("Survey: "), survey_name, style = "margin: 0 0 0.4rem 0; font-size: 1.5rem;",
+        ),
+        info_row("Cycle",                           ch$selectedCycle %||% "-"),
+        info_row("Sampling strategy",               strat_name),
+        info_row("Stratification attribute",        stratum_label),
+        info_row("Clustering",                      if (is_clustered) "Yes" else "No"),
+        info_row("Clustering entity",             cluster_attr),
+        info_row("Non-response bias correction",    if (isTRUE(ch$nonResponseBiasCorrection)) "Yes" else "No")
       )
     })
 
@@ -558,12 +599,25 @@ mod_tool_server <- function(id, rv) {
       }
 
       selected_dims <- c(input$analysis_bu_dims %||% character(0), input$analysis_sub_dims %||% character(0))
-      selection_text <- if (length(selected_dims) == 0) "No dimensions selected." else paste(selected_dims, collapse = ", ")
+
+      ## Resolve dimension codes → labels from dim_meta
+      dim_meta <- rv$analysis$dim_meta
+      dim_labels <- if (!is.null(dim_meta) && length(selected_dims) > 0) {
+        lbl <- dim_meta$label[match(selected_dims, dim_meta$name)]
+        dplyr::coalesce(lbl, selected_dims)
+      } else {
+        selected_dims
+      }
+      selection_text <- if (length(dim_labels) == 0) "No dimensions selected." else paste(dim_labels, collapse = ", ")
+
+      ## Resolve entity code → label
+      entity_label <- rv$insights$entities_named[rv$insights$entities_named == input$analysis_sel_entity]
+      entity_label <- if (length(entity_label) > 0) names(entity_label)[1] else input$analysis_sel_entity
 
       tags$div(
         if (!identical(input$analysis_mode, "area")) tags$p(
           tags$strong("Entity: "),
-          input$analysis_sel_entity
+          entity_label
         ),
         tags$p(
           tags$strong("Analysis type: "),
@@ -612,7 +666,7 @@ mod_tool_server <- function(id, rv) {
     ## Replaces dimension codes with human-readable labels from categories list.
     ## Iterates over dimension columns present in df; looks up categoryName from
     ## dim_meta to find the right category table, then maps code → label.
-    replace_dim_labels <- function(df, dim_meta, categories, lang = "en") {
+    replace_dim_labels <- function(df, dim_meta, categories, lang = "en", taxonomies = list()) {
       label_col <- paste0("label_", lang)
       dim_cols  <- intersect(
         dplyr::filter(dim_meta, .data$report_type == "dimension") |> dplyr::pull("name"),
@@ -624,6 +678,20 @@ mod_tool_server <- function(id, rv) {
           dplyr::pull("categoryName") |>
           dplyr::first()
         if (is.na(cat_name) || !nzchar(cat_name)) return(acc)
+
+        ## Taxonomy dimensions: use scientific_name instead of a category label
+        taxo_tbl <- taxonomies[[cat_name]]
+        if (!is.null(taxo_tbl) && "scientific_name" %in% names(taxo_tbl)) {
+          lookup <- stats::setNames(
+            as.character(taxo_tbl$scientific_name),
+            as.character(taxo_tbl$code)
+          )
+          return(dplyr::mutate(acc, !!col := dplyr::coalesce(
+            unname(lookup[as.character(.data[[col]])]),
+            as.character(.data[[col]])
+          )))
+        }
+
         cat_tbl <- categories[[cat_name]]
         if (is.null(cat_tbl)) return(acc)
         lbl_col <- if (label_col %in% names(cat_tbl)) label_col else "label"
@@ -641,7 +709,9 @@ mod_tool_server <- function(id, rv) {
     make_bar_plot <- function(df, x_dim, measure, fill_col, facet_col,
                               show_errbar, flip_coords, wrap_labels, hide_legend,
                               dim_meta, measures_meta,
-                              extra_filter_vals, comma_y = FALSE) {
+                              extra_filter_vals, comma_y = FALSE,
+                              plot_source = c("MEANS", "TOTALS")) {
+      plot_source <- match.arg(plot_source)
 
       ## $$$
       ## Apply multi-value filters for all dimensions
@@ -674,6 +744,17 @@ mod_tool_server <- function(id, rv) {
       y_label    <- wrap_lab(get_lbl(measures_meta, measure), width = 28)
       fill_label <- if (use_fill) wrap_lab(get_lbl(dim_meta, fill_col), width = 24) else NULL
 
+      ## Build plot title from unit column (if available)
+      unit_val <- if ("unit" %in% names(measures_meta)) {
+        measures_meta |> dplyr::filter(.data$name == measure) |> dplyr::pull("unit") |> dplyr::first()
+      } else NA_character_
+      unit_val <- if (!is.na(unit_val %||% NA) && nzchar(unit_val %||% "")) unit_val else NULL
+      plot_title <- if (identical(plot_source, "MEANS")) {
+        if (!is.null(unit_val)) paste0("Aggregated means (", unit_val, "/ha)") else "Aggregated means"
+      } else {
+        if (!is.null(unit_val)) paste0("Aggregated totals (", unit_val, ")") else "Aggregated totals"
+      }
+
       dodge   <- ggplot2::position_dodge(width = 0.9, preserve = "single")
       bar_pos <- if (use_fill) dodge else "identity"
 
@@ -691,7 +772,7 @@ mod_tool_server <- function(id, rv) {
 
       p <- ggplot2::ggplot(df, base_aes) +
         geom_col_layer +
-        ggplot2::labs(x = x_label, y = y_label, fill = fill_label) +
+        ggplot2::labs(x = x_label, y = y_label, fill = fill_label, title = plot_title) +
         ggplot2::theme_minimal() +
         ggplot2::theme(
           axis.text.x = ggplot2::element_text(size = 12, angle = 45, hjust = 1),
@@ -702,7 +783,11 @@ mod_tool_server <- function(id, rv) {
           legend.text = ggplot2::element_text(size = 11),
           strip.text = ggplot2::element_text(size = 12, face = "bold")
         ) +
-        ggplot2::scale_x_discrete(labels = \(x) wrap_lab(x, width = 18))
+        ggplot2::scale_x_discrete(
+          labels = \(x) wrap_lab(x, width = 18),
+          # Reverse order when flipped so first item appears at top (not bottom)
+          limits = if (isTRUE(flip_coords)) rev else NULL
+        )
 
       if (use_fill) {
         p <- p + ggplot2::scale_fill_discrete(labels = \(x) wrap_lab(x, width = 18))
@@ -796,11 +881,15 @@ mod_tool_server <- function(id, rv) {
         )
       ]
 
-      other_cols <- setdiff(names(df), c(dim_names, unlist(
+      count_col_names <- c("item_count", "base_unit_count", "cluster_count")
+
+      other_cols <- setdiff(names(df), c(dim_names, count_col_names, unlist(
         purrr::map(measure_names, \(m) names(df)[stringr::str_detect(names(df), paste0("^", m, "($|_)"))])
       )))
 
-      keep_cols <- unique(c(dim_names, other_cols, measure_cols))
+      # Count cols placed last, after measure cols
+      count_cols <- intersect(count_col_names, names(df))
+      keep_cols <- unique(c(dim_names, other_cols, measure_cols, count_cols))
 
       dplyr::select(df, dplyr::all_of(keep_cols))
     }
@@ -919,8 +1008,31 @@ mod_tool_server <- function(id, rv) {
       base_dims <- selected_dim_labels(TRUE)
       sub_dims  <- selected_dim_labels(FALSE)
       active_filters <- active_filter_summary()
-      ch <- rv$inputs$data$chain_summary
+      ch     <- rv$inputs$data$chain_summary
+      lang   <- ch$selectedLanguage %||% "en"
+      schema <- tibble::as_tibble(rv$inputs$data$schema_summary)
       is_clustered <- nzchar(ch$clusteringEntity %||% "")
+
+      sampling_strategy_labels <- c(
+        "1" = "Random Sampling", "2" = "Systematic Sampling",
+        "3" = "Stratified Random Sampling", "4" = "Stratified Systematic Sampling",
+        "5" = "Two-phase Sampling"
+      )
+      strat_name <- paste0(
+        sampling_strategy_labels[as.character(ch$samplingStrategy %||% "")] %||% "Unknown",
+        " (", ch$samplingStrategy, ")"
+      )
+
+      stratum_raw   <- ch$stratumAttribute %||% ""
+      stratum_label <- if (nzchar(stratum_raw)) {
+        paste0(utils_find_label(schema, stratum_raw, lang), " (", stratum_raw, ")")
+      } else "-"
+
+      cluster_attr_str <- if (is_clustered) {
+        keys   <- ch$clusteringEntityKeys %||% character(0)
+        labels <- utils_find_label(schema, keys, lang)
+        paste(paste0(labels, " (", keys, ")"), collapse = ", ")
+      } else "-"
 
       list(
         survey_label              = ch$surveyLabel %||% "Survey",
@@ -930,18 +1042,28 @@ mod_tool_server <- function(id, rv) {
           format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
           sep = " | "
         ),
-        survey_code               = ch$surveyName %||% "-",
+        survey_code               = paste0(ch$surveyLabel %||% ch$surveyName, " (", ch$surveyName, ")"),
         cycle_number              = as.character(ch$selectedCycle %||% "-"),
-        sampling_strategy         = as.character(ch$samplingStrategy %||% "-"),
-        stratification_attribute  = ch$stratumAttribute %||% "-",
+        sampling_strategy         = strat_name,
+        stratification_attribute  = stratum_label,
         clustering                = if (is_clustered) "Yes" else "No",
-        clustering_attribute      = if (is_clustered) paste(ch$clusteringEntityKeys %||% "-", collapse = ", ") else "-",
-        nonresponse_correction    = "Unknown",
+        clustering_attribute      = cluster_attr_str,
+        nonresponse_correction    = if (isTRUE(ch$nonResponseBiasCorrection)) "Yes" else "No",
         analysis_entity           = selected_entity_label(),
         analysis_type             = if (identical(analysis_result_mode(), "area")) "Area" else "Other measures",
         base_unit_dimensions      = if (length(base_dims) > 0) paste(base_dims, collapse = ", ") else "None",
         sub_unit_dimensions       = if (length(sub_dims) > 0) paste(sub_dims, collapse = ", ") else "None",
         measure_label             = selected_measure_label(),
+        measure_unit              = {
+          sel_meas <- input$analysis_sel_measure %||%
+            (rv$analysis$measures_meta |> dplyr::pull("name") |> dplyr::first())
+          if ("unit" %in% names(rv$analysis$measures_meta)) {
+            rv$analysis$measures_meta |>
+              dplyr::filter(.data$name == sel_meas) |>
+              dplyr::pull("unit") |>
+              dplyr::first() %||% ""
+          } else ""
+        },
         confidence_level          = as.character(input$analysis_p_value %||% "0.95"),
         filters_applied           = if (length(active_filters) > 0) paste(active_filters, collapse = "; ") else "None",
         table_title               = if (identical(input$analysis_table_source, "TOTALS")) "Totals" else "Means (per ha)",
@@ -1028,17 +1150,8 @@ mod_tool_server <- function(id, rv) {
     output$analysis_table <- DT::renderDT({
       req(rv$analysis$result, input$analysis_table_source, input$analysis_sel_measure)
 
-      table_df <- if (identical(input$analysis_sel_measure, "area")) {
-        table_display_df(input$analysis_table_source) |>
-          label_analysis_table_columns()
-      } else {
-        table_display_df(input$analysis_table_source) |>
-          dplyr::relocate(
-            dplyr::any_of(c("item_count", "base_unit_count", "cluster_count")),
-            .after = dplyr::last_col()
-          ) |>
-          label_analysis_table_columns()
-      }
+      table_df <- table_display_df(input$analysis_table_source) |>
+        label_analysis_table_columns()
 
       table_out <- DT::datatable(
         table_df,
@@ -1162,6 +1275,15 @@ mod_tool_server <- function(id, rv) {
       )
     })
 
+    ## . + Toggle download buttons when plot is not renderable ---------------
+    observe({
+      req(rv$analysis$result, input$plot_dim)
+      ok <- isTRUE(get_plot_validation()$ok)
+      shinyjs::toggleState("analysis_plot_means_download",  condition = ok)
+      shinyjs::toggleState("analysis_plot_totals_download", condition = ok)
+      shinyjs::toggleState("analysis_report_download",      condition = ok)
+    })
+
     ## . + Helper: collect current filter values for all dims ----------------
     ## (replaces get_extra_filter_vals — covers every dim, not just unallocated)
     get_filter_vals <- function() {
@@ -1197,7 +1319,8 @@ mod_tool_server <- function(id, rv) {
         dim_meta          = rv$analysis$dim_meta,
         measures_meta     = rv$analysis$measures_meta,
         extra_filter_vals = get_filter_vals(),
-        comma_y           = identical(source, "TOTALS")
+        comma_y           = identical(source, "TOTALS"),
+        plot_source       = source
       )
     }
 
