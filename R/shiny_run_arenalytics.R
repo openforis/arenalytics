@@ -135,6 +135,11 @@ shiny_run_arenalytics <- function(...) {
       ## JS custom handler to updateTabsetPanel()
       tags$script(src = "assets/js_activate_tab.js"),
       tags$script(src = "assets/js_handlers.js"),
+      ## GDPR compliant tracker
+      tags$head(HTML(
+        '<!-- 100% privacy-first analytics -->
+        <script data-collect-dnt="true" async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>'
+      )),
       ## CSS Style
       tags$link(rel = "stylesheet", type = "text/css", href = "assets/style.css"),
       ## Favicons
