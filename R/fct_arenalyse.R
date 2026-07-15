@@ -56,7 +56,8 @@
 fct_arenalyse <- function(.zip, .entity, .dim, .pvalue = 0.95, .cm, .lonely = "adjust", .pb_ss = NULL, .pb_id = NULL) {
 
   ## !!! FOR TESTING ONLY
-  # .zip <- "inst/extdata/OLAP_shiny_demo.zip"
+  # .zipfile <- "inst/extdata/MAU_shiny_demo.zip"
+  # .zip <- fct_readzip(.path = .zipfile)
   # var_meta <- .zip$var_meta$tree ; .zip <- .zip$data
   # .entity = "tree" ; .dim = c("stratum", "tree_dbh_class_10")
   # .cm = "fast" ; .pb_ss = NULL ; .pb_id = NULL ; .lonely = "adjust" ; .pvalue = 0.95

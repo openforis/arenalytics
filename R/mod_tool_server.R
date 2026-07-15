@@ -1014,8 +1014,10 @@ mod_tool_server <- function(id, rv) {
       is_clustered <- nzchar(ch$clusteringEntity %||% "")
 
       sampling_strategy_labels <- c(
-        "1" = "Random Sampling", "2" = "Systematic Sampling",
-        "3" = "Stratified Random Sampling", "4" = "Stratified Systematic Sampling",
+        "1" = "Random Sampling",
+        "2" = "Systematic Sampling",
+        "3" = "Stratified Random Sampling",
+        "4" = "Stratified Systematic Sampling",
         "5" = "Two-phase Sampling"
       )
       strat_name <- paste0(

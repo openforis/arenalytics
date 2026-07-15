@@ -129,3 +129,17 @@
 ## git push                 # updates fork's master
 ## git push upstream master # pushes to org
 ## git checkout dev         # back to work
+
+## As diagram:
+# work + commit on   local dev
+# │
+# │  git checkout master
+# │  git merge --no-ff dev
+# ▼
+# local master        ← the only branch that crosses to upstream
+# │
+# ├─ git push origin master     → your fork's master (clean mirror)
+#         └─ git push upstream master   → openforis (the public repo)
+#
+#    git checkout dev     ← back to work
+
