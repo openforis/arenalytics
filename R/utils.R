@@ -1,3 +1,19 @@
+
+#' Null-coalescing operator
+#'
+#' Returns `x` unless it is `NULL`, in which case it returns `y`. Provides a
+#' backport of the base R (>= 4.4.0) operator so the package works on older R.
+#'
+#' @param x,y Values to test and fall back to.
+#' @return `x` if not `NULL`, otherwise `y`.
+#' @noRd
+`%||%` <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
+
+
+
 #' Find labels in a schema-like table using the selected language
 #'
 #' @param .df A data frame containing a name column and label columns.

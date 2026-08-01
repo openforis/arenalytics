@@ -12,7 +12,7 @@ or install and run locally in a Rstudio instance with:
 
 ```         
 if (!require(remotes)) install.packages("remotes")
-if (!require(arenalytics)) remotes::install_github("openforis/arenalytics")
+if (!require(arenalytics)) remotes::install_github("openforis/arenalytics", upgrade="never")
 
 arenalytics::shiny_run_arenalytics()
 ```
@@ -27,4 +27,4 @@ arenalytics::shiny_run_arenalytics()
 ```
 
 
-*Installing the development is not recommended and may not work as expected, including bugs in the application and/or wrong estimation of survey results.*
+*Installing the development version is not recommended and may not work as expected, including bugs in the application and/or wrong estimation of survey results.*
