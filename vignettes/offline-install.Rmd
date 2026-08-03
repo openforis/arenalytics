@@ -15,7 +15,8 @@ This guide explains how to install arenalytics on a machine that has **no
 internet connection**. You will need the file
 **`arenalytics_offline_pkgs.zip`** provided by your administrator or a
 colleague (see the section *Preparing the bundle* at the bottom if you are the
-one creating it).
+one creating it). The bundle can be downloaded here: https://drive.google.com/file/d/12cGOvpMiYGJ7RsgcC5Awt59GXQGRfSSB/view?usp=sharing
+
 
 ---
 
