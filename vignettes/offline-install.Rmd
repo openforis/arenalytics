@@ -127,7 +127,7 @@ The arenalytics dashboard should open in your browser.
 
 **`package 'XYZ' is not available`**  
 The package was not included in the bundle. Ask your administrator to
-regenerate the bundle using `tools/make_offline_bundle.R`.
+regenerate the bundle using `inst/extdata/make_offline_bundle.R`.
 
 **Compilation errors on Windows**  
 Rtools is likely missing or the wrong version. Make sure the Rtools version
@@ -148,7 +148,7 @@ machine **with** internet access. It downloads all required packages and their
 dependencies into a single zip ready to share:
 
 ```r
-source("tools/make_offline_bundle.R")
+source("inst/extdata/make_offline_bundle.R")
 ```
 
 This creates `arenalytics_offline_pkgs.zip` in your working directory.
