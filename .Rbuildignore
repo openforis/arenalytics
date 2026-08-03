@@ -7,3 +7,6 @@
 ^app\.R$
 ^rsconnect$
 ^data-raw$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

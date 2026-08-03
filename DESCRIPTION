@@ -38,4 +38,10 @@ Imports:
     zip
 Depends:
     R (>= 4.1.0)
+URL: https://openforis.github.io/arenalytics/, https://github.com/openforis/arenalytics
+BugReports: https://github.com/openforis/arenalytics/issues
 LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

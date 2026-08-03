@@ -1,0 +1,48 @@
+url: https://openforis.github.io/arenalytics/
+
+template:
+  bootstrap: 5
+  bootswatch: yeti
+  bslib:
+    primary: "#4991B0"
+    secondary: "#77AB16"
+
+navbar:
+  bg: light
+  structure:
+    left:  [intro, articles, reference]
+    right: [search, github]
+  components:
+    github:
+      icon: fab fa-github
+      href: https://github.com/openforis/arenalytics
+      aria-label: GitHub
+
+home:
+  title: "arenalytics — Analytics for Open Foris Arena"
+  description: >
+    A Shiny dashboard to explore data from Open Foris Arena,
+    gain insights, and develop report-ready figures and statistics.
+  links:
+    - text: "Live app"
+      href: https://openforis-shiny.shinyapps.io/arenalytics/
+    - text: "Open Foris Arena"
+      href: https://www.openforis.org/arena/
+
+articles:
+  - title: "Guides"
+    navbar: Guides
+    contents:
+      - offline-install
+
+reference:
+  - title: "Run the app"
+    contents:
+      - shiny_run_arenalytics
+  - title: "Core functions"
+    desc: "Functions for reading, checking, and analysing Arena survey data."
+    contents:
+      - fct_readzip
+      - fct_checkzip
+      - fct_arenalyse
+      - fct_mean
