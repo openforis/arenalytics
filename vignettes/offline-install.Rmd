@@ -3,59 +3,64 @@ title: "Installing arenalytics offline"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Installing arenalytics offline}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
-This guide explains how to install arenalytics on a machine that has **no
-internet connection**. You will need the file
+This guide explains how to install arenalytics on a machine that has
+**no internet connection**. You will need the file
 **`arenalytics_offline_pkgs.zip`** provided by your administrator or a
-colleague (see the section *Preparing the bundle* at the bottom if you are the
-one creating it). The bundle can be downloaded here: https://drive.google.com/file/d/12cGOvpMiYGJ7RsgcC5Awt59GXQGRfSSB/view?usp=sharing
+colleague (see the section *Preparing the bundle* at the bottom if you
+are the one creating it). The bundle can be downloaded
+[[here]](https://drive.google.com/drive/folders/1BRxiOOwRZll8f8Abh98PGa1eVxG-JWsE?usp=drive_link).
 
-
----
+------------------------------------------------------------------------
 
 ## Prerequisites
 
-Make sure the following software is already installed on your machine before
-you start.
+Make sure the following software is already installed on your machine
+before you start.
 
 | Software | Notes |
-|---|---|
+|------------------------------------|------------------------------------|
 | **R ≥ 4.1** | <https://cran.r-project.org> |
 | **RStudio** | <https://posit.co/download/rstudio-desktop/> |
 | **Rtools** *(Windows only)* | Required to compile packages from source. Download the version matching your R installation from <https://cran.r-project.org/bin/windows/Rtools/> |
 | **Xcode Command Line Tools** *(macOS only)* | Open the Terminal app and run `xcode-select --install` |
 | **Quarto CLI** | Required for report generation. <https://quarto.org/docs/get-started/> |
 
----
+------------------------------------------------------------------------
 
 ## Step 1 — Create a new R project
 
-1. Open **RStudio**.
-2. Go to **File › New Project › New Directory › New Project**.
-3. Name the project (e.g. `arenalytics`) and choose a folder on your machine.
-4. Click **Create Project**.
+1.  Open **RStudio**.
+2.  Go to **File › New Project › New Directory › New Project**.
+3.  Name the project (e.g. `arenalytics`) and choose a folder on your
+    machine.
+4.  Click **Create Project**.
 
-You should now be inside a fresh RStudio project with an empty workspace.
+You should now be inside a fresh RStudio project with an empty
+workspace.
 
----
+------------------------------------------------------------------------
 
 ## Step 2 — Copy and extract the bundle
 
-1. Copy **`arenalytics_offline_pkgs.zip`** into the project folder you just
-   created (the same folder that contains the `.Rproj` file).
-2. Extract it there:
-   - **Windows**: right-click the zip → *Extract All…* → keep the default
-     destination.
-   - **macOS / Linux**: double-click the zip, or run in the Terminal:
+1.  Copy **`arenalytics_offline_pkgs.zip`** into the project folder you
+    just created (the same folder that contains the `.Rproj` file).
+2.  Extract it there:
+    - **Windows**: right-click the zip → *Extract All…* → keep the
+      default destination.
+    - **macOS / Linux**: double-click the zip, or run in the Terminal:
 
-```bash
+``` bash
 unzip arenalytics_offline_pkgs.zip -d arenalytics_offline_pkgs
 ```
 
@@ -64,7 +69,7 @@ with the layout `arenalytics_offline_pkgs/src/contrib/` containing the
 `.tar.gz` files and a `PACKAGES` index — the standard CRAN repository
 structure that R expects.
 
----
+------------------------------------------------------------------------
 
 ## Step 3 — Install the dependencies
 
@@ -96,7 +101,7 @@ install.packages(
 > This step compiles packages from source and may take **5–15 minutes**.
 > You will see a lot of output in the console — that is normal.
 
----
+------------------------------------------------------------------------
 
 ## Step 4 — Launch
 
@@ -107,33 +112,33 @@ shiny_run_arenalytics()
 
 The arenalytics dashboard should open in your browser.
 
----
+------------------------------------------------------------------------
 
 ## Troubleshooting
 
-**`package 'XYZ' is not available`**  
+**`package 'XYZ' is not available`**\
 The package was not included in the bundle. Ask your administrator to
 regenerate the bundle using `inst/extdata/make_offline_bundle.R`.
 
-**Compilation errors on Windows**  
-Rtools is likely missing or the wrong version. Make sure the Rtools version
-matches your R version (e.g. Rtools44 for R 4.4.x).
+**Compilation errors on Windows**\
+Rtools is likely missing or the wrong version. Make sure the Rtools
+version matches your R version (e.g. Rtools44 for R 4.4.x).
 
-**Compilation errors on macOS**  
+**Compilation errors on macOS**\
 Run `xcode-select --install` in the Terminal and retry.
 
-**`could not find function "shiny_run_arenalytics"`**  
+**`could not find function "shiny_run_arenalytics"`**\
 The arenalytics package itself was not installed. Repeat Step 4.
 
----
+------------------------------------------------------------------------
 
 ## Preparing the bundle *(for administrators)*
 
 If you are the one providing the zip file, run the following script on a
-machine **with** internet access. It downloads all required packages and their
-dependencies into a single zip ready to share:
+machine **with** internet access. It downloads all required packages and
+their dependencies into a single zip ready to share:
 
-```r
+``` r
 source("inst/extdata/make_offline_bundle.R")
 ```
 
