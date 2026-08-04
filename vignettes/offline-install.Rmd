@@ -60,7 +60,9 @@ unzip arenalytics_offline_pkgs.zip -d arenalytics_offline_pkgs
 ```
 
 You should now have a sub-folder called **`arenalytics_offline_pkgs/`**
-containing many `.tar.gz` files and a `PACKAGES` index file.
+with the layout `arenalytics_offline_pkgs/src/contrib/` containing the
+`.tar.gz` files and a `PACKAGES` index — the standard CRAN repository
+structure that R expects.
 
 ---
 
@@ -79,6 +81,7 @@ local_repo <- paste0("file:///", normalizePath("arenalytics_offline_pkgs", winsl
 ```{r install-deps}
 install.packages(
   pkgs = c(
+    "arenalytics",
     "bsicons", "bslib", "DT", "dplyr", "ggplot2", "htmltools",
     "jsonlite", "purrr", "quarto", "rlang", "scales", "shiny",
     "shiny.i18n", "shinyjs", "shinyWidgets", "srvyr",
@@ -95,25 +98,7 @@ install.packages(
 
 ---
 
-## Step 4 — Install arenalytics
-
-Copy the **`arenalytics`** package source folder (the folder that contains the
-`DESCRIPTION` file) into your project directory, then run:
-
-```{r install-pkg}
-install.packages("arenalytics", repos = NULL, type = "source")
-```
-
-If you received a pre-built `.tar.gz` of the package instead, pass its path
-directly:
-
-```{r install-tarball}
-install.packages("path/to/arenalytics_1.0.0.tar.gz", repos = NULL, type = "source")
-```
-
----
-
-## Step 5 — Launch
+## Step 4 — Launch
 
 ```{r launch}
 library(arenalytics)
@@ -153,5 +138,4 @@ source("inst/extdata/make_offline_bundle.R")
 ```
 
 This creates `arenalytics_offline_pkgs.zip` in your working directory.
-Share that zip along with this vignette (or `tools/install_offline.md`) with
-your users.
+Share that zip along with this vignette with your users.

@@ -41,10 +41,11 @@ direct_pkgs <- c(
 ## CRAN mirror to use
 cran_mirror <- "https://cran.r-project.org"
 
-## Temporary folder for downloaded tarballs.
-## The subfolder is named "arenalytics_offline_pkgs" so that name is preserved
-## as the top-level directory inside the zip, and extraction lands there.
-pkg_dir  <- "inst/extdata/tmp/arenalytics_offline_pkgs"
+## Packages are downloaded into the standard CRAN repo layout:
+##   arenalytics_offline_pkgs/src/contrib/
+## This lets install.packages() use repos = "file:///path/to/arenalytics_offline_pkgs"
+## directly, without any special contriburl tricks.
+pkg_dir  <- "inst/extdata/tmp/arenalytics_offline_pkgs/src/contrib"
 zip_root <- "inst/extdata/tmp"
 
 ## Final zip destination — built from getwd() so it is always absolute,
@@ -83,7 +84,7 @@ result <- download.packages(
   type    = "source"
 )
 
-## Write a PACKAGES index so the folder can act as a local CRAN-like repo
+## Write the PACKAGES index into src/contrib/ — R expects it there
 tools::write_PACKAGES(pkg_dir, type = "source", verbose = FALSE)
 
 n_downloaded <- nrow(result)
@@ -96,6 +97,14 @@ if (n_downloaded < length(all_pkgs)) {
     paste(" -", missing_pkgs, collapse = "\n")
   )
 }
+
+# ── Build and add the arenalytics package itself ----------------------------
+
+message("Building arenalytics tarball ...")
+devtools::build(path = pkg_dir, vignettes = FALSE, quiet = TRUE)
+
+## Refresh the PACKAGES index to include arenalytics
+tools::write_PACKAGES(pkg_dir, type = "source", verbose = FALSE)
 
 # ── Create the zip bundle ---------------------------------------------------
 
@@ -121,3 +130,4 @@ message(sprintf(
 message(
   "\nShare '", zip_name, "' together with 'tools/install_offline.md' with your users."
 )
+
