@@ -100,6 +100,9 @@ if (n_downloaded < length(all_pkgs)) {
 
 # ── Build and add the arenalytics package itself ----------------------------
 
+## NOTE: `.Rbuildignore` must exclude `inst/extdata/tmp` and the output zip,
+## otherwise R CMD build sweeps the downloaded tarballs (living under inst/)
+## into the arenalytics tarball and the bundle size roughly doubles.
 message("Building arenalytics tarball ...")
 devtools::build(path = pkg_dir, vignettes = FALSE, quiet = TRUE)
 

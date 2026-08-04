@@ -1,7 +1,7 @@
 ## Custom gitignore
 *.DS_Store
 data-raw/*.zip
-
+inst/extdata/arenalytics_offline_pkgs.zip
 ## Github default R gitignore
 # History files
 .Rhistory
