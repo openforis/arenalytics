@@ -75,8 +75,13 @@ shiny_run_arenalytics <- function(...) {
       "Arial", "Noto Sans", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji",
       "Segoe UI Symbol","Noto Color Emoji"
     ),
-    code_font = bslib::font_google("Fira Code"),
-    heading_font = bslib::font_google("Inter"),
+    code_font = bslib::font_collection(
+      "Fira Code", "ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"
+    ),
+    heading_font = bslib::font_collection(
+      "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto",
+      "Helvetica Neue", "Arial", "sans-serif"
+    ),
     primary = app_primary_color,
     secondary = app_secondary_color,
   )

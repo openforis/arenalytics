@@ -102,7 +102,7 @@ deps <- c(
 )
 
 # 1. Dependencies as pre-compiled Windows binaries (no compiler, seconds)
-install.packages(deps, repos = local_repo, type = "win.binary", dependencies = FALSE)
+install.packages(deps, repos = local_repo, type = "win.binary")
 
 # 2. arenalytics itself (pure R — installs instantly, no Rtools)
 install.packages("arenalytics", repos = local_repo, type = "source", dependencies = FALSE)
@@ -182,10 +182,10 @@ machine **with** internet access. It downloads all required packages and
 their dependencies and produces both bundles:
 
 ``` r
-source("inst/extdata/make_offline_bundle.R")
+source("data-raw/make_offline_bundle.R")
 ```
 
-This creates, in `inst/extdata/`:
+This creates, in `data-raw/`:
 
 - `arenalytics_offline_pkgs.zip` — source packages (any platform)
 - `arenalytics_offline_pkgs_WIN.zip` — Windows binaries for R 4.6.x

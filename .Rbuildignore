@@ -10,6 +10,6 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^inst/extdata/tmp$
-^inst/extdata/arenalytics_offline_pkgs\.zip$
-^inst/extdata/arenalytics_offline_pkgs_WIN\.zip$
+^data-raw/tmp$
+^data-raw/arenalytics_offline_pkgs\.zip$
+^data-raw/arenalytics_offline_pkgs_WIN\.zip$
