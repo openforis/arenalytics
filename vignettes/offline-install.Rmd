@@ -32,8 +32,8 @@ before you start.
 |------------------------------------|------------------------------------|
 | **R ≥ 4.1** | <https://cran.r-project.org> |
 | **RStudio** | <https://posit.co/download/rstudio-desktop/> |
-| **Rtools** *(Windows only)* | Required to compile packages from source. Download the version matching your R installation from <https://cran.r-project.org/bin/windows/Rtools/> |
-| **Xcode Command Line Tools** *(macOS only)* | Open the Terminal app and run `xcode-select --install` |
+| **Rtools** *(Windows, source bundle only)* | **Not needed** if you use the Windows binary bundle. Only required to compile the source bundle; download the version matching your R from <https://cran.r-project.org/bin/windows/Rtools/> |
+| **Xcode Command Line Tools** *(macOS only)* | Only for the source bundle. Open the Terminal app and run `xcode-select --install` |
 | **Quarto CLI** | Required for report generation. <https://quarto.org/docs/get-started/> |
 
 ------------------------------------------------------------------------
@@ -51,10 +51,22 @@ workspace.
 
 ------------------------------------------------------------------------
 
-## Step 2 — Copy and extract the bundle
+## Step 2 — Choose and extract the bundle
 
-1.  Copy **`arenalytics_offline_pkgs.zip`** into the project folder you
-    just created (the same folder that contains the `.Rproj` file).
+Two bundles are available. **Pick one:**
+
+| Bundle | Use when | Speed |
+|---|---|---|
+| **`arenalytics_offline_pkgs_WIN.zip`** | You are on **Windows with R 4.6.x** | Fast — pre-compiled, no Rtools needed |
+| **`arenalytics_offline_pkgs.zip`** | Any other platform (macOS, Linux), or a different R version | Slow — compiled from source, needs a compiler |
+
+> **Windows users should use the `_WIN` bundle.** It contains pre-compiled
+> binaries, so installation takes seconds instead of an hour and does **not**
+> require Rtools. It only works on R 4.6.x — check yours with
+> `R.version.string`.
+
+1.  Copy your chosen zip into the project folder you just created (the same
+    folder that contains the `.Rproj` file).
 2.  Extract it there:
     - **Windows**: right-click the zip → *Extract All…* → keep the
       default destination.
@@ -64,26 +76,47 @@ workspace.
 unzip arenalytics_offline_pkgs.zip -d arenalytics_offline_pkgs
 ```
 
-You should now have a sub-folder called **`arenalytics_offline_pkgs/`**
-with the layout `arenalytics_offline_pkgs/src/contrib/` containing the
-`.tar.gz` files and a `PACKAGES` index — the standard CRAN repository
-structure that R expects.
+You should now have a sub-folder (`arenalytics_offline_pkgs/` or
+`arenalytics_offline_pkgs_WIN/`) laid out as a standard CRAN repository that R
+can install from.
 
 ------------------------------------------------------------------------
 
-## Step 3 — Install the dependencies
+## Step 3 — Install the packages
 
-Open the RStudio **Console** pane and run the following commands.
+Open the RStudio **Console** pane and run the commands for **your** bundle.
 
-### 3a. Point R to the local package repository
+### Option A — Windows binary bundle (recommended on Windows)
 
-```{r local-repo}
-local_repo <- paste0("file:///", normalizePath("arenalytics_offline_pkgs", winslash = "/"))
+Install the dependencies first (as pre-compiled binaries), then `arenalytics`
+itself (pure R, from its source tarball). Two explicit steps are used because a
+single `type = "both"` call does not reliably resolve a local `file://` repo.
+
+```{r install-win}
+local_repo <- paste0("file:///", normalizePath("arenalytics_offline_pkgs_WIN", winslash = "/"))
+
+deps <- c(
+  "bsicons", "bslib", "DT", "dplyr", "ggplot2", "htmltools", "jsonlite",
+  "purrr", "quarto", "rlang", "scales", "shiny", "shiny.i18n", "shinyjs",
+  "shinyWidgets", "srvyr", "stringr", "tibble", "tidyr", "zip"
+)
+
+# 1. Dependencies as pre-compiled Windows binaries (no compiler, seconds)
+install.packages(deps, repos = local_repo, type = "win.binary", dependencies = FALSE)
+
+# 2. arenalytics itself (pure R — installs instantly, no Rtools)
+install.packages("arenalytics", repos = local_repo, type = "source", dependencies = FALSE)
 ```
 
-### 3b. Install all required packages
+> `dependencies = FALSE` is used because every required package is already
+> listed explicitly, so R does not need to resolve (and fail to find) optional
+> `Suggests` such as `knitr` and `rmarkdown`.
 
-```{r install-deps}
+### Option B — Source bundle (macOS, Linux, other R versions)
+
+```{r install-source}
+local_repo <- paste0("file:///", normalizePath("arenalytics_offline_pkgs", winslash = "/"))
+
 install.packages(
   pkgs = c(
     "arenalytics",
@@ -94,12 +127,13 @@ install.packages(
   ),
   repos        = local_repo,
   type         = "source",
-  dependencies = TRUE
+  dependencies = FALSE
 )
 ```
 
-> This step compiles packages from source and may take **5–15 minutes**.
-> You will see a lot of output in the console — that is normal.
+> This compiles every package from source and may take **10–60 minutes**.
+> A compiler is required (Rtools on Windows, Xcode CLT on macOS). A lot of
+> console output is normal.
 
 ------------------------------------------------------------------------
 
@@ -120,27 +154,42 @@ The arenalytics dashboard should open in your browser.
 The package was not included in the bundle. Ask your administrator to
 regenerate the bundle using `inst/extdata/make_offline_bundle.R`.
 
-**Compilation errors on Windows**\
+**Installation is very slow / stuck compiling (Windows)**\
+You are using the source bundle. Switch to the Windows binary bundle
+(`arenalytics_offline_pkgs_WIN.zip`, Option A) — it is pre-compiled and
+installs in seconds.
+
+**`package 'XYZ' ... is not available` with the Windows bundle**\
+Your R version does not match the bundle. The `_WIN` bundle targets R 4.6.x;
+check `R.version.string` and either install R 4.6.x or use the source bundle.
+
+**Compilation errors on Windows (source bundle)**\
 Rtools is likely missing or the wrong version. Make sure the Rtools
-version matches your R version (e.g. Rtools44 for R 4.4.x).
+version matches your R version (e.g. Rtools46 for R 4.6.x).
 
 **Compilation errors on macOS**\
 Run `xcode-select --install` in the Terminal and retry.
 
 **`could not find function "shiny_run_arenalytics"`**\
-The arenalytics package itself was not installed. Repeat Step 4.
+The arenalytics package itself was not installed. Repeat Step 3.
 
 ------------------------------------------------------------------------
 
 ## Preparing the bundle *(for administrators)*
 
-If you are the one providing the zip file, run the following script on a
+If you are the one providing the bundles, run the following script on a
 machine **with** internet access. It downloads all required packages and
-their dependencies into a single zip ready to share:
+their dependencies and produces both bundles:
 
 ``` r
 source("inst/extdata/make_offline_bundle.R")
 ```
 
-This creates `arenalytics_offline_pkgs.zip` in your working directory.
-Share that zip along with this vignette with your users.
+This creates, in `inst/extdata/`:
+
+- `arenalytics_offline_pkgs.zip` — source packages (any platform)
+- `arenalytics_offline_pkgs_WIN.zip` — Windows binaries for R 4.6.x
+
+To target a different R version for the Windows bundle, change the `win_ver`
+variable near the top of the script. Share the appropriate bundle along with
+this vignette with your users.

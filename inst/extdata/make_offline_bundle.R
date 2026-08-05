@@ -5,9 +5,11 @@
 ## packages required by arenalytics and bundle them into a zip file that can
 ## be shared with users who have no internet connection.
 ##
-## Output: inst/extdata/arenalytics_offline_pkgs.zip
+## Outputs (both created in inst/extdata/):
+##   - arenalytics_offline_pkgs.zip      source packages  (any platform, needs a compiler)
+##   - arenalytics_offline_pkgs_WIN.zip  Windows binaries (R 4.6.x, no compiler/Rtools needed)
 ##
-## Requirements: R >= 4.1, the `zip` package must already be installed.
+## Requirements: R >= 4.1, the `zip` and `devtools` packages installed.
 ## Run from the arenalytics project root:
 ##   source("inst/extdata/make_offline_bundle.R")
 ## ============================================================================
@@ -40,6 +42,11 @@ direct_pkgs <- c(
 
 ## CRAN mirror to use
 cran_mirror <- "https://cran.r-project.org"
+
+## Target R version for the Windows binary bundle (major.minor only).
+## Windows binaries live at <mirror>/bin/windows/contrib/<win_ver> on CRAN.
+## The end user's installed R must match this minor version (e.g. 4.6.x).
+win_ver <- "4.6"
 
 ## Packages are downloaded into the standard CRAN repo layout:
 ##   arenalytics_offline_pkgs/src/contrib/
@@ -104,14 +111,14 @@ if (n_downloaded < length(all_pkgs)) {
 ## otherwise R CMD build sweeps the downloaded tarballs (living under inst/)
 ## into the arenalytics tarball and the bundle size roughly doubles.
 message("Building arenalytics tarball ...")
-devtools::build(path = pkg_dir, vignettes = FALSE, quiet = TRUE)
+arenalytics_tarball <- devtools::build(path = pkg_dir, vignettes = FALSE, quiet = TRUE)
 
 ## Refresh the PACKAGES index to include arenalytics
 tools::write_PACKAGES(pkg_dir, type = "source", verbose = FALSE)
 
-# ── Create the zip bundle ---------------------------------------------------
+# ── Create the source zip bundle --------------------------------------------
 
-message("Creating zip bundle ...")
+message("Creating source zip bundle ...")
 
 ## Temporarily change into zip_root so "arenalytics_offline_pkgs" is the
 ## top-level entry in the zip. zip_name is already absolute so it is
@@ -120,17 +127,65 @@ old_wd <- setwd(zip_root)
 zip::zip(zipfile = zip_name, files = "arenalytics_offline_pkgs")
 setwd(old_wd)
 
+message(sprintf("Source bundle: %s  (%.1f MB)", zip_name, file.size(zip_name) / 1024^2))
+
+# ── Windows binary bundle ---------------------------------------------------
+
+message(sprintf("Downloading Windows binaries for R %s ...", win_ver))
+
+## Windows binaries and the arenalytics source tarball are placed in a
+## CRAN-style repo so install.packages(type = "both") finds the pre-compiled
+## dependencies and falls back to source only for arenalytics (pure R).
+win_root    <- "inst/extdata/tmp/arenalytics_offline_pkgs_WIN"
+win_bin_dir <- file.path(win_root, "bin/windows/contrib", win_ver)
+win_src_dir <- file.path(win_root, "src/contrib")
+zip_name_win <- file.path(getwd(), "inst/extdata/arenalytics_offline_pkgs_WIN.zip")
+
+dir.create(win_bin_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(win_src_dir, showWarnings = FALSE, recursive = TRUE)
+
+## Point at the target R version's contrib path explicitly, since this
+## session's R version may differ from win_ver.
+win_contriburl <- paste0(cran_mirror, "/bin/windows/contrib/", win_ver)
+ap_win <- available.packages(contriburl = win_contriburl, type = "win.binary")
+
+result_win <- download.packages(
+  pkgs       = all_pkgs,
+  destdir    = win_bin_dir,
+  available  = ap_win,
+  contriburl = win_contriburl,
+  type       = "win.binary"
+)
+tools::write_PACKAGES(win_bin_dir, type = "win.binary", verbose = FALSE)
+
+n_win <- nrow(result_win)
+message(sprintf("Downloaded %d / %d Windows binaries.", n_win, length(all_pkgs)))
+if (n_win < length(all_pkgs)) {
+  missing_win <- setdiff(all_pkgs, result_win[, 1])
+  warning(
+    "Missing Windows binaries (are they built for R ", win_ver, " yet?):\n",
+    paste(" -", missing_win, collapse = "\n")
+  )
+}
+
+## Reuse the source tarball already built above (arenalytics has no compiled
+## code, so a source install on Windows is fast and needs no Rtools).
+file.copy(arenalytics_tarball, win_src_dir, overwrite = TRUE)
+tools::write_PACKAGES(win_src_dir, type = "source", verbose = FALSE)
+
+message("Creating Windows zip bundle ...")
+old_wd <- setwd(zip_root)
+zip::zip(zipfile = zip_name_win, files = "arenalytics_offline_pkgs_WIN")
+setwd(old_wd)
+
+message(sprintf("Windows bundle: %s  (%.1f MB)", zip_name_win, file.size(zip_name_win) / 1024^2))
+
 # ── Clean up temporary folder -----------------------------------------------
 
 unlink(zip_root, recursive = TRUE)
 message("Temporary folder removed.")
 
-message(sprintf(
-  "Done!  Bundle saved to: %s  (%.1f MB)",
-  zip_name,
-  file.size(zip_name) / 1024^2
-))
-message(
-  "\nShare '", zip_name, "' together with 'tools/install_offline.md' with your users."
-)
+message("\nDone! Share the appropriate bundle with your users:")
+message("  - arenalytics_offline_pkgs.zip      (source, any OS, needs a compiler)")
+message("  - arenalytics_offline_pkgs_WIN.zip  (Windows, R ", win_ver, ".x, no compiler)")
 

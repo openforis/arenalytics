@@ -12,3 +12,4 @@
 ^pkgdown$
 ^inst/extdata/tmp$
 ^inst/extdata/arenalytics_offline_pkgs\.zip$
+^inst/extdata/arenalytics_offline_pkgs_WIN\.zip$
