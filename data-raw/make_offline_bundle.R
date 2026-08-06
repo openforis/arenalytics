@@ -5,13 +5,13 @@
 ## packages required by arenalytics and bundle them into a zip file that can
 ## be shared with users who have no internet connection.
 ##
-## Outputs (both created in inst/extdata/):
+## Outputs (both created in data-raw/):
 ##   - arenalytics_offline_pkgs.zip      source packages  (any platform, needs a compiler)
 ##   - arenalytics_offline_pkgs_WIN.zip  Windows binaries (R 4.6.x, no compiler/Rtools needed)
 ##
 ## Requirements: R >= 4.1, the `zip` and `devtools` packages installed.
 ## Run from the arenalytics project root:
-##   source("inst/extdata/make_offline_bundle.R")
+##   source("data-raw/make_offline_bundle.R")
 ## ============================================================================
 
 # ── Configuration ------------------------------------------------------------
@@ -52,12 +52,12 @@ win_ver <- "4.6"
 ##   arenalytics_offline_pkgs/src/contrib/
 ## This lets install.packages() use repos = "file:///path/to/arenalytics_offline_pkgs"
 ## directly, without any special contriburl tricks.
-pkg_dir  <- "inst/extdata/tmp/arenalytics_offline_pkgs/src/contrib"
-zip_root <- "inst/extdata/tmp"
+pkg_dir  <- "data-raw/tmp/arenalytics_offline_pkgs/src/contrib"
+zip_root <- "data-raw/tmp"
 
 ## Final zip destination — built from getwd() so it is always absolute,
 ## even when zip internally changes the working directory.
-zip_name <- file.path(getwd(), "inst/extdata/arenalytics_offline_pkgs.zip")
+zip_name <- file.path(getwd(), "data-raw/arenalytics_offline_pkgs.zip")
 
 # ── Resolve full recursive dependency set -----------------------------------
 
@@ -107,7 +107,7 @@ if (n_downloaded < length(all_pkgs)) {
 
 # ── Build and add the arenalytics package itself ----------------------------
 
-## NOTE: `.Rbuildignore` must exclude `inst/extdata/tmp` and the output zip,
+## NOTE: `.Rbuildignore` must exclude `data-raw/tmp` and the output zip,
 ## otherwise R CMD build sweeps the downloaded tarballs (living under inst/)
 ## into the arenalytics tarball and the bundle size roughly doubles.
 message("Building arenalytics tarball ...")
@@ -136,10 +136,10 @@ message(sprintf("Downloading Windows binaries for R %s ...", win_ver))
 ## Windows binaries and the arenalytics source tarball are placed in a
 ## CRAN-style repo so install.packages(type = "both") finds the pre-compiled
 ## dependencies and falls back to source only for arenalytics (pure R).
-win_root    <- "inst/extdata/tmp/arenalytics_offline_pkgs_WIN"
+win_root    <- "data-raw/tmp/arenalytics_offline_pkgs_WIN"
 win_bin_dir <- file.path(win_root, "bin/windows/contrib", win_ver)
 win_src_dir <- file.path(win_root, "src/contrib")
-zip_name_win <- file.path(getwd(), "inst/extdata/arenalytics_offline_pkgs_WIN.zip")
+zip_name_win <- file.path(getwd(), "data-raw/arenalytics_offline_pkgs_WIN.zip")
 
 dir.create(win_bin_dir, showWarnings = FALSE, recursive = TRUE)
 dir.create(win_src_dir, showWarnings = FALSE, recursive = TRUE)
@@ -188,4 +188,5 @@ message("Temporary folder removed.")
 message("\nDone! Share the appropriate bundle with your users:")
 message("  - arenalytics_offline_pkgs.zip      (source, any OS, needs a compiler)")
 message("  - arenalytics_offline_pkgs_WIN.zip  (Windows, R ", win_ver, ".x, no compiler)")
+
 
