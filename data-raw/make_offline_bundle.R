@@ -174,9 +174,10 @@ file.copy(arenalytics_tarball, win_src_dir, overwrite = TRUE)
 tools::write_PACKAGES(win_src_dir, type = "source", verbose = FALSE)
 
 message("Creating Windows zip bundle ...")
-old_wd <- setwd(zip_root)
-zip::zip(zipfile = zip_name_win, files = "arenalytics_offline_pkgs_WIN")
-setwd(old_wd)
+zip::zip(zipfile = zip_name_win, files = c("bin", "src"), root = win_root)
+# old_wd <- setwd(zip_root)
+# zip::zip(zipfile = zip_name_win, files = "arenalytics_offline_pkgs_WIN")
+# setwd(old_wd)
 
 message(sprintf("Windows bundle: %s  (%.1f MB)", zip_name_win, file.size(zip_name_win) / 1024^2))
 

@@ -56,7 +56,7 @@ shiny_run_arenalytics <- function(...) {
         .noWS = "before-end"
       ),
       i18n$t(.tr$app_title),
-      style = 'display:inline;font-color: black !important; font-family: "Inter"'
+      style = 'display:inline;font-color: black !important; font-family: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;'
     )
   }
 
