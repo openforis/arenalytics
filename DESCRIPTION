@@ -6,7 +6,8 @@ Authors@R:
       person("Gaël", "Sola", email = "gaelsola.pro@gmail.com", role = c("aut", "cre")),
       person("Lauri", "Vesa", role = c("aut")),
       person("Javier", "Garcia-Perez", role = c("aut")),
-      person("Anibal", "Cuchetti", role = c("aut"))
+      person("Anibal", "Cuchetti", role = c("aut")),
+      person("Jimena", "SaucedoMiranda", role = c("aut"))
     )
 Description: Package built around a shinyApp to explore data from Open Foris Arena, 
              gain insights and develop report-ready figures and statistics. 
