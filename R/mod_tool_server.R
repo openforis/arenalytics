@@ -901,6 +901,7 @@ mod_tool_server <- function(id, rv) {
         dplyr::filter(.data$report_type == "dimension") |>
         (\(x) stats::setNames(x$label, x$name))()
 
+      ## !!! ERROR HERE IF 2 VARS HAVE SAME NAME AND ONE IS EXTENDED !!!
       selected_measure <- input$analysis_sel_measure %||%
         (rv$analysis$measures_meta |> dplyr::pull("name") |> dplyr::first())
       measure_label <- rv$analysis$measures_meta |>
