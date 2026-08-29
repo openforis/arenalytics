@@ -101,6 +101,9 @@ fct_varinfo <- function(.zip, .entity){
     )
   ## !!! ADD Information for exp_factor_ to get area as measure in the shinyapp
 
+  ## !!! FIX IF REPORT ALREADY AT BASEUNIT, ALL VARS ARE BASE UNIT
+  if(.entity == chain$baseUnit) wt_names$dimension_baseunit <- TRUE
+
   ## Stratum attribute tagging
   strat_attr_raw <- if (is.null(chain$stratumAttribute)) "" else chain$stratumAttribute
   wt_names <- wt_names |>
