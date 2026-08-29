@@ -64,13 +64,14 @@ mod_tool_UI <- function(id, i18n, .tr){
     shinyjs::hidden(div(
       id = ns("msg_file_ok"),
       i18n$t(.tr$ac1_msg_ok),
+      verbatimTextOutput(ns("file_error_detail1")),
       class = "text-success",
       style = "font-style: italic;"
     )),
     shinyjs::hidden(div(
       id = ns("msg_file_error"),
       i18n$t(.tr$ac1_msg_err),
-      verbatimTextOutput(ns("file_error_detail")),
+      verbatimTextOutput(ns("file_error_detail2")),
       class = "text-danger",
       style = "font-style: italic;"
     )),

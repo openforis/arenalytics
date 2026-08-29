@@ -29,9 +29,9 @@ mod_tool_server <- function(id, rv) {
 
     })
 
-    output$file_error_detail <- renderPrint({
+    output$file_error_detail1 <- output$file_error_detail2 <- renderPrint({
       req(rv$inputs$checkzip)
-      if(!rv$inputs$checkzip$all_ok) {
+      if(!rv$inputs$checkzip$all_ok | !rv$inputs$checkzip$has_taxonomies) {
         cat("Missing files:\n", paste(rv$inputs$checkzip$missing, collapse = ", "))
       }
     })
@@ -882,7 +882,7 @@ mod_tool_server <- function(id, rv) {
 
       measure_cols <- names(df) |>
         purrr::keep(\(x) stringr::str_starts(x, selected_measure)) |>
-        purrr::discard(\(x) any(stringr::str_starts(x, nested_measures)))
+        purrr::discard(\(x) length(nested_measures) > 0 && any(stringr::str_starts(x, nested_measures)))
 
       count_col_names <- c("item_count", "base_unit_count", "cluster_count")
 
