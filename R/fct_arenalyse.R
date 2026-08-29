@@ -56,10 +56,9 @@
 fct_arenalyse <- function(.zip, .entity, .dim, .pvalue = 0.95, .cm, .lonely = "adjust", .pb_ss = NULL, .pb_id = NULL) {
 
   ## !!! FOR TESTING ONLY
-  # .zipfile <- "inst/extdata/MAU_shiny_demo.zip"
+  # .zipfile <- "inst/extdata/MAU_Shiny_demo.zip"
   # .zip <- fct_readzip(.path = .zipfile)
-  # var_meta <- .zip$var_meta$tree ; .zip <- .zip$data
-  # .entity = "tree" ; .dim = c("stratum", "tree_dbh_class_10")
+  # .entity = "tree" ; .dim = c("cluster_stratum", "tree_dbh_10cm")
   # .cm = "fast" ; .pb_ss = NULL ; .pb_id = NULL ; .lonely = "adjust" ; .pvalue = 0.95
   ## !!!
 
@@ -79,21 +78,21 @@ fct_arenalyse <- function(.zip, .entity, .dim, .pvalue = 0.95, .cm, .lonely = "a
   ## 0. Coerce inputs ------
   log_step(paste0("Preparing analysis for entity '", .entity, "'."), value = 5)
 
-  .zip$chain_summary$resultVariables <- tibble::as_tibble(
-    .zip$chain_summary$resultVariables
+  .zip$data$chain_summary$resultVariables <- tibble::as_tibble(
+    .zip$data$chain_summary$resultVariables
   )
-  .zip$schema_summary    <- tibble::as_tibble(.zip$schema_summary)
-  .zip$report_dimensions <- tibble::as_tibble(.zip$report_dimensions)
+  .zip$data$schema_summary    <- tibble::as_tibble(.zip$data$schema_summary)
+  .zip$data$report_dimensions <- tibble::as_tibble(.zip$data$report_dimensions)
 
-  chain          <- .zip$chain_summary
-  entity_tblname <- stringr::str_subset(names(.zip), .entity)
+  chain          <- .zip$data$chain_summary
+  entity_tblname <- stringr::str_subset(names(.zip$data), .entity)
   entity_prefix  <- stringr::str_remove(entity_tblname, .entity)
 
   ## Get entity data
-  wt <- .zip[[entity_tblname]] |> tibble::as_tibble()
+  wt <- .zip$data[[entity_tblname]] |> tibble::as_tibble()
 
   ## Get entity columns metadata
-  wt_names <- fct_varinfo(.zip = .zip, .entity = .entity)
+  wt_names <- .zip$var_meta[[.entity]]
   log_step("Entity metadata loaded.", value = 15)
 
   ## Validate .lonely
