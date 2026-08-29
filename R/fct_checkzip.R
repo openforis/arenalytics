@@ -19,7 +19,7 @@ fct_checkzip <- function(.path){
 
   ## !!! FOR TESTING ONLY
   # .path = "inst/extdata/OLAP_shiny_demo_broken.zip"
-  # .path = "inst/extdata/OLAP_shiny_demo.zip"
+  # .path = "inst/extdata/MAU_Shiny_demo.zip"
   # !!!
 
   checklist <- data.frame(
@@ -45,11 +45,14 @@ fct_checkzip <- function(.path){
   ## Summary
   zipcheck$all_ok <- all(unlist(zipcheck))
 
-  zipcheck$missing <- zipmissing
+  ## !!! ALLOWS TAXONOMIES TO BE MISSING
+  if(zipmissing == "taxonomies") zipcheck$all_ok <- TRUE
 
-  zipcheck$entity_prefix <- entity_prefix
+  zipout <- zipcheck
+  zipout$missing <- zipmissing
+  zipout$entity_prefix <- entity_prefix
 
-  zipcheck
+  zipout
 
 }
 
