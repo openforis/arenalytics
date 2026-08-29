@@ -314,7 +314,7 @@ mod_tool_server <- function(id, rv) {
 
               ## +++
               fct_arenalyse(
-                .zip    = rv$inputs$data,
+                .zip    = rv$inputs,
                 .entity = input$analysis_sel_entity,
                 .dim    = rv$analysis$dims_sel,
                 .pvalue = as.numeric(input$analysis_p_value),
@@ -697,7 +697,8 @@ mod_tool_server <- function(id, rv) {
         lbl_col <- if (label_col %in% names(cat_tbl)) label_col else "label"
         lookup  <- stats::setNames(
           as.character(cat_tbl[[lbl_col]]),
-          as.character(cat_tbl$code)
+          ## !!! Replaced code with code_joint, should solve multi-level cats
+          as.character(cat_tbl$code_joint)
         )
         dplyr::mutate(acc, !!col := dplyr::coalesce(unname(lookup[as.character(.data[[col]])]),
                                                      as.character(.data[[col]])))
@@ -874,12 +875,14 @@ mod_tool_server <- function(id, rv) {
       measure_names <- rv$analysis$measures_meta |> dplyr::pull("name")
       selected_measure <- input$analysis_sel_measure %||% measure_names[1]
 
-      measure_cols <- names(df)[
-        purrr::map_lgl(
-          names(df),
-          \(col) stringr::str_detect(col, paste0("^", selected_measure, "($|_)"))
-        )
-      ]
+      ## !!! Solved nested col names being selected.
+      nested_measures <- measure_names |>
+        setdiff(selected_measure) |>
+        purrr::keep(\(m) stringr::str_starts(m, selected_measure))
+
+      measure_cols <- names(df) |>
+        purrr::keep(\(x) stringr::str_starts(x, selected_measure)) |>
+        purrr::discard(\(x) any(stringr::str_starts(x, nested_measures)))
 
       count_col_names <- c("item_count", "base_unit_count", "cluster_count")
 
