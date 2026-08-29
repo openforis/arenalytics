@@ -26,7 +26,7 @@
 #
 # ## Load data ######
 # rv$inputs$pathzip <- input$load_zip$datapath <- "inst/extdata/MAU_Shiny_demo.zip" ## "data-raw/MAU_Shiny_(plot_as_baseunit-NO_TAXON).zip"
-# rv$inputs$pathzip <- input$load_zip$datapath <- "data-raw/MAU_Shiny_(plot_as_baseunit-NO_TAXON).zip"
+# #rv$inputs$pathzip <- input$load_zip$datapath <- "data-raw/MAU_Shiny_(plot_as_baseunit-NO_TAXON).zip"
 #
 # rv$inputs$checkzip <- fct_checkzip(.path = rv$inputs$pathzip)
 #
@@ -49,6 +49,9 @@
 # for (nm in names(tmp_out)) {
 #   rv$inputs[[nm]] <- tmp_out[[nm]]
 # }
+#
+# names(rv$inputs)
+# names(rv$inputs$data)
 #
 # ## Get entity names and labels ######
 # rv$insights$entities  <- names(rv$inputs$data) |>
