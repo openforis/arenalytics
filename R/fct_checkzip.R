@@ -46,7 +46,7 @@ fct_checkzip <- function(.path){
   zipcheck$all_ok <- all(unlist(zipcheck))
 
   ## !!! ALLOWS TAXONOMIES TO BE MISSING
-  if(zipmissing == "taxonomies") zipcheck$all_ok <- TRUE
+  if(length(zipmissing) > 0 && zipmissing == "taxonomies.rds") zipcheck$all_ok <- TRUE
 
   zipout <- zipcheck
   zipout$missing <- zipmissing
