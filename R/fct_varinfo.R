@@ -18,7 +18,7 @@
 fct_varinfo <- function(.zip, .entity){
 
   ## !!! FOR TESTING ONLY
-  # .path = "inst/extdata/OLAP_shiny_demo.zip"
+  # .path = "inst/extdata/MAU_Shiny_demo.zip"
   # .zip <- fct_readzip(.path = .path)$data ; names(.zip)
   # .entity = "tree"
   ## !!!
@@ -122,14 +122,18 @@ fct_varinfo <- function(.zip, .entity){
     dplyr::pull("dimension")
 
   ## Filter: vars where multiple is TRUE
-  multivars <- schema |> dplyr::filter(as.logical(.data$multiple), .data$type != "entity") |> dplyr::pull("name")
+  multivars <- schema |>
+    dplyr::filter(as.logical(.data$multiple), .data$type != "entity") |>
+    dplyr::pull("name")
 
   ## !!! TMP !!!
   ## In future version there will be a field "hiddenInAnalyticalDashboard" in schemaSummary.csv
   if (!"hiddenInAnalyticalDashboard" %in% names(schema)) schema$hiddenInAnalyticalDashboard <- FALSE
 
   ## Filter: vars that are set as hidden for the analytical dashboard
-  hiddenvars <- schema |> dplyr::filter(as.logical(.data$hiddenInAnalyticalDashboard)) |> dplyr::pull("name")
+  hiddenvars <- schema |>
+    dplyr::filter(as.logical(.data$hiddenInAnalyticalDashboard)) |>
+    dplyr::pull("name")
 
   wt_names <- wt_names |>
     dplyr::filter(
