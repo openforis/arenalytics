@@ -81,56 +81,39 @@
 # devtools::document()
 # devtools::install()
 # devtools::load_all() ; shiny_run_arenalytics()
-## Checks
+# # Checks
 # Sys.setenv("_R_CHECK_SYSTEM_CLOCK_" = 0) ; devtools::check()
 #
+# ## Publish app:
+# ## - shinyapps.io: open ~/app.R then run:
+# rsconnect::deployApp()
 #
-# ## Moving from  arenalytics.dev to arenalytic main package
-# ## 1. copy: R/, inst/, and DESCRIPTION only package if needed.
+# ## UPDATE 2024: To publish to connect cloud, create manifest
+# rsconnect::writeManifest()
 #
-# root    <- "/Users/gaelsola/Github-collabs/arenalytics"
-# patterns <- c("arenalytics\\.dev", "shiny_run_arenalytics_dev")
 #
-# file_paths <- list.files(root, recursive = TRUE, full.names = TRUE) |>
-#   stringr::str_subset(pattern = "/man|/inst|NAMESPACE", negate = TRUE)
+# ## Note on git configuration
+# ## - main repo: https://github.com/openforis/arenalytics
+# ## - On Github: fork then change name to 'arenalytics_dev': https://github.com/gaelso/arenalytics_dev
+# ## - In Rstudio: Create Rstudio project with fork
+# ## - In Rstudio: Git tab > New Branch, call it 'dev'
+# ## - Setup upstream: git remote add upstream https://github.com/openforis/arenalytics
+# ## - Before each session: git fetch upstream
+# ## - If changes:
+# ## git checkout master
+# ## git pull upstream master
+# ## git push                 # updates your fork's master
+# ## git checkout dev
+# ## git merge master         # brings changes into dev
+# ## git push
+# ## - Finally push changes from branch to origin
+# ## git checkout master
+# ## git merge dev
+# ## git push                 # updates fork's master
+# ## git push upstream master # pushes to org
+# ## git checkout dev         # back to work
 #
-# purrr::map(file_paths, \(f) {
-#   tryCatch({
-#     lines   <- readLines(f, warn = FALSE)
-#     matches <- grep(paste(patterns, collapse = "|"), lines)
-#     if (length(matches) > 0) {
-#       tibble::tibble(
-#         file    = stringr::str_remove(f, stringr::fixed(root)),
-#         line_no = matches,
-#         content = stringr::str_trim(lines[matches])
-#       )
-#     }
-#   }, error = \(e) NULL)
-# }) |>
-#   purrr::list_rbind()
-
-## Note on git configuration
-## - main repo: https://github.com/openforis/arenalytics
-## - On Github: fork then change name to 'arenalytics_dev': https://github.com/gaelso/arenalytics.dev
-## - In Rstudio: Create Rstudio project with fork
-## - In Rstudio: Git tab > New Branch, call it 'dev'
-## - Setup upstream: git remote add upstream https://github.com/openforis/arenalytics
-## - Before each session: git fetch upstream
-## - If changes:
-## git checkout master
-## git pull upstream master
-## git push                 # updates your fork's master
-## git checkout dev
-## git merge master         # brings changes into dev
-## git push
-## - Finally push changes from branch to origin
-## git checkout master
-## git merge dev
-## git push                 # updates fork's master
-## git push upstream master # pushes to org
-## git checkout dev         # back to work
-
-## As diagram:
+# ## As diagram:
 # work + commit on   local dev
 # │
 # │  git checkout master
@@ -142,4 +125,4 @@
 #         └─ git push upstream master   → openforis (the public repo)
 #
 #    git checkout dev     ← back to work
-
+#
