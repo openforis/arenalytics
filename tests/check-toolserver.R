@@ -35,15 +35,15 @@
 #   .path = rv$inputs$pathzip
 # )
 #
-# ## Reproducible error:
-# tmp_out$data$MAU_tree <- tmp_out$data$MAU_tree |> dplyr::mutate(tree_biomass_ag_chave = tree_biomass_ag * 0.95)
-# row_chave <- tmp_out$var_meta$tree |>
-#   dplyr::filter(name == "tree_biomass_ag") |>
-#   dplyr::mutate(
-#     name = "tree_biomass_ag_chave",
-#     label = paste(label, "Chave", sep = " ")
-#     )
-# tmp_out$var_meta$tree <- dplyr::bind_rows(tmp_out$var_meta$tree, row_chave)
+# ## Reproducible error: specific to asic example
+# # tmp_out$data$MAU_tree <- tmp_out$data$MAU_tree |> dplyr::mutate(tree_biomass_ag_chave = tree_biomass_ag * 0.95)
+# # row_chave <- tmp_out$var_meta$tree |>
+# #   dplyr::filter(name == "tree_biomass_ag") |>
+# #   dplyr::mutate(
+# #     name = "tree_biomass_ag_chave",
+# #     label = paste(label, "Chave", sep = " ")
+# #     )
+# # tmp_out$var_meta$tree <- dplyr::bind_rows(tmp_out$var_meta$tree, row_chave)
 # ## +++
 #
 # for (nm in names(tmp_out)) {
@@ -73,8 +73,8 @@
 #   rv$insights$entities, rv$insights$entities_labs
 # )
 #
-#
 # ## Get metadata from selected entity ######
+# #input$analysis_sel_entity <- "plot"
 # rv$analysis$dim_meta <- rv$inputs$var_meta[[input$analysis_sel_entity]]
 #
 # ## !!! TO INSPECT FURTHER !!!
@@ -85,6 +85,51 @@
 # ## Get measures meta-data ######
 # rv$analysis$measures_meta <- rv$inputs$var_meta[[input$analysis_sel_entity]] |>
 #   dplyr::filter(.data$report_type == "measure")
+#
+#
+# ## Display insights ######
+#
+# selected_dims <- c(input$analysis_bu_dims %||% character(0), input$analysis_sub_dims %||% character(0))
+# #selected_dims <- "land_use"
+#
+# ## Resolve dimension codes → labels from dim_meta
+# dim_meta <- rv$analysis$dim_meta
+# dim_labels <- if (!is.null(dim_meta) && length(selected_dims) > 0) {
+#   lbl <- dim_meta$label[match(selected_dims, dim_meta$name)]
+#   dplyr::coalesce(lbl, selected_dims)
+# } else {
+#   selected_dims
+# }
+# selection_text <- if (length(dim_labels) == 0) "No dimensions selected." else paste(dim_labels, collapse = ", ")
+#
+# ## Resolve entity code → label
+# entity_label <- rv$insights$entities_named[rv$insights$entities_named == input$analysis_sel_entity]
+# entity_label <- if (length(entity_label) > 0) names(entity_label)[1] else input$analysis_sel_entity
+#
+# tags$div(
+#   if (!identical(input$analysis_mode, "area")) tags$p(
+#     tags$strong("Entity: "),
+#     entity_label
+#   ),
+#   tags$p(
+#     tags$strong("Analysis type: "),
+#     if (identical(input$analysis_mode, "area")) "Area" else "Other measures"
+#   ),
+#   tags$p(
+#     tags$strong("Selected dimensions: "),
+#     selection_text
+#   )
+# )
+#
+# input$analysis_bu_dims <- "land_use"
+# ctx <- get_current_insight_context()
+# make_dim_summary(
+#   sel = ctx$base_dims,
+#   meta = ctx$dim_meta,
+#   tbl = ctx$entity_table,
+#   categories = rv$inputs$data$categories,
+#   lang = rv$inputs$data$chain_summary$selectedLanguage %||% "en"
+# )
 #
 # ## RUN ANALYSIS ######
 # ## +++

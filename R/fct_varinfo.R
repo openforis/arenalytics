@@ -63,7 +63,7 @@ fct_varinfo <- function(.zip, .entity){
   ss_meta <- schema |>
     dplyr::mutate(
       categoryName = dplyr::if_else(
-        .data$taxonomyName != "", .data$taxonomyName, .data$categoryName
+        .data$taxonomyName == "" | is.na(.data$taxonomyName), .data$categoryName, .data$taxonomyName
       )
     ) |>
     dplyr::select(
